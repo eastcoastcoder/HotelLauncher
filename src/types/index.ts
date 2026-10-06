@@ -56,10 +56,7 @@ export interface LauncherConfig {
     cta: string;
   };
   promoBanner: {
-    kicker: string;
-    title: string;
-    description: string;
-    cta: string;
+    image: number;
   };
   hotelInfo: HotelFact[];
   streamApps: StreamApp[];

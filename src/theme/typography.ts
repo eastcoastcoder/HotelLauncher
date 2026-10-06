@@ -3,11 +3,11 @@ import { TextStyle } from 'react-native';
 export const type = {
   brand: { fontSize: 22, fontWeight: '700', letterSpacing: 1.4 } as TextStyle,
   welcomeKicker: {
-    fontSize: 12,
+    fontSize: 20,
     fontWeight: '600',
     letterSpacing: 3,
   } as TextStyle,
-  welcome: { fontSize: 20, fontWeight: '500' } as TextStyle,
+  welcome: { fontSize: 16, fontWeight: '500' } as TextStyle,
   meta: { fontSize: 16, fontWeight: '500' } as TextStyle,
   nav: { fontSize: 18, fontWeight: '500' } as TextStyle,
   title: { fontSize: 28, fontWeight: '600' } as TextStyle,

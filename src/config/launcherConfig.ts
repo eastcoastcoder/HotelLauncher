@@ -1,10 +1,11 @@
+import dodgeBonk from '../assets/dodge-bonk.png';
 import { LauncherConfig, MenuItem } from '../types';
 
 export const launcherConfig: LauncherConfig = {
   hotelName: 'Hotel Launcher',
   hotelBrand: 'STAY',
-  welcomeKicker: 'WELCOME',
-  welcomeMessage: 'Enjoy your stay',
+  welcomeKicker: 'BIG SPENDER MEMBER',
+  welcomeMessage: 'Good Evening, hoss',
   weather: {
     summary: 'Clear',
     fahrenheit: 72,
@@ -22,10 +23,7 @@ export const launcherConfig: LauncherConfig = {
     cta: 'LEARN MORE',
   },
   promoBanner: {
-    kicker: 'TONIGHT',
-    title: 'A quieter kind of luxury.',
-    description: 'Ask the front desk about late dining and sunrise swims.',
-    cta: 'LEARN MORE',
+    image: dodgeBonk,
   },
   hotelInfo: [
     { label: 'Front Desk', value: 'Dial 0' },

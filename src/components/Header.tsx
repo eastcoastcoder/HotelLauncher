@@ -81,7 +81,7 @@ const styles = StyleSheet.create({
   },
   kicker: {
     ...type.welcomeKicker,
-    color: colors.accent,
+    color: colors.textPrimary,
   },
   welcomeText: {
     ...type.welcome,
