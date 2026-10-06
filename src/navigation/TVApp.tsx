@@ -51,6 +51,26 @@ const styles = StyleSheet.create({
   root: {
     flex: 1,
     backgroundColor: colors.background,
+    // Hard black through the top three quarters, then the wash from Gradient.jpg
+    // through to hard white at the bottom edge.
+    experimental_backgroundImage: [
+      {
+        type: 'linear-gradient',
+        direction: 'to bottom',
+        colorStops: [
+          { color: '#000000', positions: ['0%'] },
+          { color: '#000000', positions: ['75%'] },
+          { color: '#0F182D', positions: ['79%'] },
+          { color: '#293A68', positions: ['82%'] },
+          { color: '#38569E', positions: ['85%'] },
+          { color: '#4A6BAF', positions: ['88%'] },
+          { color: '#6E8ABF', positions: ['91%'] },
+          { color: '#A9B7D6', positions: ['94%'] },
+          { color: '#E4E8F2', positions: ['97%'] },
+          { color: '#FFFFFF', positions: ['100%'] },
+        ],
+      },
+    ],
   },
   body: {
     flex: 1,

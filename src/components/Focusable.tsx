@@ -8,6 +8,7 @@ type Props = {
   hasTVPreferredFocus?: boolean;
   style?: StyleProp<ViewStyle>;
   focusedStyle?: StyleProp<ViewStyle>;
+  onFocusChange?: (focused: boolean) => void;
   nextFocusUp?: number;
   nextFocusDown?: number;
   nextFocusLeft?: number;
@@ -20,6 +21,7 @@ export function Focusable({
   hasTVPreferredFocus,
   style,
   focusedStyle,
+  onFocusChange,
   nextFocusUp,
   nextFocusDown,
   nextFocusLeft,
@@ -31,8 +33,14 @@ export function Focusable({
     <Pressable
       hasTVPreferredFocus={hasTVPreferredFocus}
       onPress={onPress}
-      onFocus={() => setFocused(true)}
-      onBlur={() => setFocused(false)}
+      onFocus={() => {
+        setFocused(true);
+        onFocusChange?.(true);
+      }}
+      onBlur={() => {
+        setFocused(false);
+        onFocusChange?.(false);
+      }}
       nextFocusUp={nextFocusUp}
       nextFocusDown={nextFocusDown}
       nextFocusLeft={nextFocusLeft}

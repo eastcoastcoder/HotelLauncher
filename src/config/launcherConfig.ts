@@ -76,11 +76,11 @@ export const launcherConfig: LauncherConfig = {
 };
 
 export const menuItems: MenuItem[] = [
-  { id: 'discover', title: 'Discover', screen: 'Discover' },
-  { id: 'watch-tv', title: 'Watch TV', screen: 'WatchTV' },
-  { id: 'stream', title: 'Stream', screen: 'Stream' },
-  { id: 'my-media', title: 'My Media', screen: 'MyMedia' },
-  { id: 'hotel-info', title: 'Hotel Info', screen: 'HotelInfo' },
-  { id: 'settings', title: 'Settings', screen: 'Settings' },
-  { id: 'privacy', title: 'Privacy Center', screen: 'Privacy' },
+  { id: 'discover', title: 'Discover', screen: 'Discover', icon: 'home' },
+  { id: 'watch-tv', title: 'Watch TV', screen: 'WatchTV', icon: 'tv' },
+  { id: 'stream', title: 'Stream', screen: 'Stream', icon: 'stream' },
+  { id: 'my-media', title: 'My Media', screen: 'MyMedia', icon: 'play' },
+  { id: 'hotel-info', title: 'Hotel Info', screen: 'HotelInfo', icon: 'hotel' },
+  { id: 'settings', title: 'Settings', screen: 'Settings', icon: 'settings' },
+  { id: 'privacy', title: 'Privacy Center', screen: 'Privacy', icon: null },
 ];

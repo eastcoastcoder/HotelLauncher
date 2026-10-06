@@ -39,7 +39,7 @@ D-pad only: Up, Down, Left, Right, Select, Back. Focus must be obvious. Back ret
 - [x] Placeholder screens driven by `src/config/launcherConfig.ts`
 - [x] `LEANBACK_LAUNCHER` plus optional `HOME` / `DEFAULT` (user can decline)
 - [x] `npm install` and TypeScript check
-- [ ] Sideload debug APK onto the A90K (needs Android SDK + device)
+- [x] Sideload debug APK onto the A90K (needs Android SDK + device)
 
 ### Phase 2 — Functional TV
 

@@ -1,7 +1,16 @@
+export type NavIconName =
+  | 'home'
+  | 'tv'
+  | 'stream'
+  | 'play'
+  | 'hotel'
+  | 'settings';
+
 export interface MenuItem {
   id: string;
   title: string;
   screen: ScreenId;
+  icon: NavIconName | null;
 }
 
 export type ScreenId =
