@@ -11,11 +11,17 @@ import { ScreenId } from '../types';
 
 export function TVApp() {
   const [screen, setScreen] = useState<ScreenId>('Discover');
+  const [videoFullscreen, setVideoFullscreen] = useState(false);
+  const showChrome = !videoFullscreen;
 
   React.useEffect(() => {
     const subscription = BackHandler.addEventListener(
       'hardwareBackPress',
       () => {
+        if (videoFullscreen) {
+          setVideoFullscreen(false);
+          return true;
+        }
         if (screen !== 'Discover') {
           setScreen('Discover');
           return true;
@@ -24,23 +30,42 @@ export function TVApp() {
       },
     );
     return () => subscription.remove();
-  }, [screen]);
+  }, [screen, videoFullscreen]);
 
   return (
     <View style={styles.root}>
-      <Header />
-      <View style={styles.body}>
-        <SideNavigation active={screen} onSelect={setScreen} />
+      <View style={showChrome ? undefined : styles.hidden}>
+        <Header />
+      </View>
+      <View style={[styles.body, showChrome ? undefined : styles.bodyFull]}>
+        <View style={showChrome ? undefined : styles.hidden}>
+          <SideNavigation
+            active={screen}
+            enabled={showChrome}
+            onSelect={next => {
+              setVideoFullscreen(false);
+              setScreen(next);
+            }}
+          />
+        </View>
         <View style={styles.main}>
           {screen === 'Discover' ? (
             <View style={styles.discover}>
-              <MainStage />
-              <NowPlayingPanel />
+              <MainStage
+                fullscreen={videoFullscreen}
+                onEnterFullscreen={() => setVideoFullscreen(true)}
+                onExitFullscreen={() => setVideoFullscreen(false)}
+              />
+              <View style={showChrome ? undefined : styles.hidden}>
+                <NowPlayingPanel enabled={showChrome} />
+              </View>
             </View>
           ) : (
             <ScreenBody screen={screen} />
           )}
-          <PromoBanner />
+          <View style={showChrome ? undefined : styles.hidden}>
+            <PromoBanner />
+          </View>
         </View>
       </View>
     </View>
@@ -77,6 +102,13 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     paddingHorizontal: 28,
     paddingBottom: 24,
+  },
+  bodyFull: {
+    paddingHorizontal: 0,
+    paddingBottom: 0,
+  },
+  hidden: {
+    display: 'none',
   },
   main: {
     flex: 1,

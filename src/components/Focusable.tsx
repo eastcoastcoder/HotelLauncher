@@ -1,11 +1,18 @@
 import React, { useState } from 'react';
-import { Pressable, StyleProp, StyleSheet, ViewStyle } from 'react-native';
+import {
+  Pressable,
+  StyleProp,
+  StyleSheet,
+  View,
+  ViewStyle,
+} from 'react-native';
 import { colors } from '../theme/colors';
 
 type Props = {
   children: React.ReactNode;
   onPress?: () => void;
   hasTVPreferredFocus?: boolean;
+  focusable?: boolean;
   style?: StyleProp<ViewStyle>;
   focusedStyle?: StyleProp<ViewStyle>;
   onFocusChange?: (focused: boolean) => void;
@@ -15,22 +22,28 @@ type Props = {
   nextFocusRight?: number;
 };
 
-export function Focusable({
-  children,
-  onPress,
-  hasTVPreferredFocus,
-  style,
-  focusedStyle,
-  onFocusChange,
-  nextFocusUp,
-  nextFocusDown,
-  nextFocusLeft,
-  nextFocusRight,
-}: Props) {
+export const Focusable = React.forwardRef<View, Props>(function FocusableControl(
+  {
+    children,
+    onPress,
+    hasTVPreferredFocus,
+    focusable = true,
+    style,
+    focusedStyle,
+    onFocusChange,
+    nextFocusUp,
+    nextFocusDown,
+    nextFocusLeft,
+    nextFocusRight,
+  },
+  ref,
+) {
   const [focused, setFocused] = useState(false);
 
   return (
     <Pressable
+      ref={ref}
+      focusable={focusable}
       hasTVPreferredFocus={hasTVPreferredFocus}
       onPress={onPress}
       onFocus={() => {
@@ -55,7 +68,9 @@ export function Focusable({
       {children}
     </Pressable>
   );
-}
+});
+
+Focusable.displayName = 'Focusable';
 
 const styles = StyleSheet.create({
   base: {

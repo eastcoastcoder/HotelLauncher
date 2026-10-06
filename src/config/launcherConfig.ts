@@ -14,7 +14,7 @@ export const launcherConfig: LauncherConfig = {
   mainStage: {
     kicker: 'FEATURED',
     title: 'Your room. Your stay.',
-    subtitle: 'Live video will play here once a TV-compatible player is added.',
+    subtitle: 'Welcome in. The room is ready when you are.',
   },
   nowPlaying: {
     kicker: 'NOW PLAYING',

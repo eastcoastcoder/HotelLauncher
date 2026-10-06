@@ -19,3 +19,23 @@ buildscript {
 }
 
 apply plugin: "com.facebook.react.rootproject"
+
+// RN 0.83 codegen rejects WebView's navigationType union. Patch before codegen.
+gradle.projectsEvaluated {
+    def webview = rootProject.subprojects.find { it.name == "react-native-webview" }
+    if (webview != null) {
+        def patch = webview.tasks.register("patchWebViewSpec") {
+            doLast {
+                exec {
+                    workingDir rootProject.projectDir.parentFile
+                    commandLine "node", "scripts/patch-react-native-webview.js"
+                }
+            }
+        }
+        webview.tasks.configureEach { task ->
+            if (task.name.toLowerCase().contains("codegen") && task.name != "patchWebViewSpec") {
+                task.dependsOn(patch)
+            }
+        }
+    }
+}

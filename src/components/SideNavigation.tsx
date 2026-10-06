@@ -10,9 +10,10 @@ import { NavIcon } from './NavIcon';
 type Props = {
   active: ScreenId;
   onSelect: (screen: ScreenId) => void;
+  enabled?: boolean;
 };
 
-export function SideNavigation({ active, onSelect }: Props) {
+export function SideNavigation({ active, onSelect, enabled = true }: Props) {
   const [focusedId, setFocusedId] = useState<string | null>(null);
 
   return (
@@ -25,6 +26,7 @@ export function SideNavigation({ active, onSelect }: Props) {
         return (
           <Focusable
             key={item.id}
+            focusable={enabled}
             hasTVPreferredFocus={index === 0}
             onPress={() => onSelect(item.screen)}
             onFocusChange={focused => {
@@ -52,7 +54,7 @@ export function SideNavigation({ active, onSelect }: Props) {
 
 const styles = StyleSheet.create({
   column: {
-    width: 260,
+    width: 200,
     paddingTop: 6,
     paddingBottom: 8,
     gap: 4,

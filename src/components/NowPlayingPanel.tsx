@@ -5,7 +5,11 @@ import { colors } from '../theme/colors';
 import { type } from '../theme/typography';
 import { Focusable } from './Focusable';
 
-export function NowPlayingPanel() {
+type Props = {
+  enabled?: boolean;
+};
+
+export function NowPlayingPanel({ enabled = true }: Props) {
   const item = launcherConfig.nowPlaying;
 
   return (
@@ -16,7 +20,7 @@ export function NowPlayingPanel() {
       <Text style={styles.kicker}>{item.kicker}</Text>
       <Text style={styles.title}>{item.title}</Text>
       <Text style={styles.body}>{item.description}</Text>
-      <Focusable style={styles.cta}>
+      <Focusable style={styles.cta} focusable={enabled}>
         <Text style={styles.ctaText}>{item.cta} →</Text>
       </Focusable>
     </View>
@@ -25,7 +29,7 @@ export function NowPlayingPanel() {
 
 const styles = StyleSheet.create({
   panel: {
-    width: 280,
+    width: 188,
     marginLeft: 16,
     borderRadius: 16,
     backgroundColor: colors.panel,
@@ -34,7 +38,7 @@ const styles = StyleSheet.create({
     padding: 16,
   },
   art: {
-    height: 120,
+    height: 72,
     borderRadius: 12,
     backgroundColor: '#101A28',
     alignItems: 'center',

@@ -15,7 +15,7 @@ The A90K may refuse a third-party app as the permanent system Home. The app must
 - Android package `com.hotellauncher`
 - Design canvas 3840×2160, laid out in density-independent units so 1080p TVs scale
 
-Video uses a styled stage (not a native player) until a `react-native-tvos`-compatible ExoPlayer package is verified. Do not add `react-native-video` until that check passes.
+The Discover stage streams YouTube when `src/config/mainStage.local.json` names a channel. That file is gitignored. With no file, a blank channel, or no videos left after exclusions, the stage stays static. Do not add `react-native-video` until a `react-native-tvos`-compatible ExoPlayer package is verified.
 
 ## Layout
 
@@ -44,6 +44,15 @@ D-pad only: Up, Down, Left, Right, Select, Back. Focus must be obvious. Back ret
 ### Phase 2 — Functional TV
 
 Installed-app discovery (PackageManager bridge), launch external apps, persistent settings, network/HLS video, promo rotation, QR, weather, screensaver.
+
+Main stage streams recent uploads from a YouTube channel. Copy `src/config/mainStage.example.json` to `src/config/mainStage.local.json` (gitignored) and set:
+
+- `channel`: channel URL, `@handle`, or channel id. For example `http://youtube.com/@hotelchannel`.
+- `exclude`: video ids to skip. `https://www.youtube.com/watch?v=ADdXw-HMnwc` is entered as `ADdXw-HMnwc`.
+
+Playback streams one video at a time in a WebView, then advances. It does not download the catalog. The config object is the seam for a later settings screen, which should pass the same channel and exclude list instead of a source edit.
+
+Not built: a cache setting that downloads the channel's videos for offline playback. Leave that until streaming is settled.
 
 ### Phase 3 — Sony
 
