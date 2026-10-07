@@ -8,13 +8,13 @@ import { NavIcon } from './NavIcon';
 
 type Props = {
   active: ScreenId;
-  onSelect: (screen: ScreenId) => void;
+  onSelect: (screen: ScreenId | null) => void;
   enabled?: boolean;
   menuItems: Array<{
     id: string;
-    screen: ScreenId;
+    screen: ScreenId | null;
     title: string;
-    icon?: string;
+    icon?: string | null;
   }>;
 };
 

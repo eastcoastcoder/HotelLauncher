@@ -52,8 +52,6 @@ Main stage streams recent uploads from a YouTube channel. Copy `src/config/mainS
 
 Playback streams one video at a time in a WebView, then advances. It does not download the catalog. The config object is the seam for a later settings screen, which should pass the same channel and exclude list instead of a source edit.
 
-Not built: a cache setting that downloads the channel's videos for offline playback. Leave that until streaming is settled.
-
 ### Phase 3 — Sony
 
 Tuner, HDMI input, volume, power, boot, real Home replacement. Only if the A90K allows it. Do not block Phase 1 on these.
@@ -79,3 +77,13 @@ cd android && ./gradlew assembleRelease
 ## Recovery
 
 If the TV offers this app as Home and navigation breaks, hold the remote Home button (or use Settings → Apps) and choose the stock Google TV / Android TV launcher. Uninstall from Settings → Apps → Hotel Launcher.
+
+## User Notes
+
+Apply this to Netflix background
+
+linear-gradient(7deg, rgba(0, 0, 0, 0.8500) 10.00%, rgba(0, 0, 0, 0.8465) 17.25%, rgba(0, 0, 0, 0.8361) 24.50%, rgba(0, 0, 0, 0.8187) 31.75%, rgba(0, 0, 0, 0.7944) 39.00%, rgba(0, 0, 0, 0.7632) 46.25%, rgba(0, 0, 0, 0.7250) 53.50%, rgba(0, 0, 0, 0.6868) 60.75%, rgba(0, 0, 0, 0.6556) 68.00%, rgba(0, 0, 0, 0.6312) 75.25%, rgba(0, 0, 0, 0.6139) 82.50%, rgba(0, 0, 0, 0.6035) 89.75%, rgba(0, 0, 0, 0.6000) 97.00%)
+
+## User Tech Debt
+
+Figure out if I can make the types tighter. I losened them to avoid Typescript errors.

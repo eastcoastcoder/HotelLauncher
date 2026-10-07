@@ -1,72 +1,54 @@
 import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
-import {
-  launcherConfig,
-  streamMenuItems,
-  mediaMenuItems,
-  hotelInfoMenuItems,
-} from '../config/launcherConfig';
+import { Panel } from './Panel';
+import { launcherConfig } from '../config/launcherConfig';
 import { colors } from '../theme/colors';
 import { type } from '../theme/typography';
 import { ScreenId } from '../types';
-import { Navigation } from './Navigation';
+import { Discover } from '../screens/Discover';
+import { WatchTV } from '../screens/WatchTV';
+import { Stream } from '../screens/Stream';
+import { MyMedia } from '../screens/MyMedia';
+import { HotelInfo } from '../screens/HotelInfo';
 
 type Props = {
-  screen: Exclude<ScreenId, 'Discover'>;
+  screen: ScreenId;
+  videoFullscreen: boolean;
+  setVideoFullscreen: (fullscreen: boolean) => void;
+  showChrome: boolean;
 };
 
-export function ScreenBody({ screen }: Props) {
-  if (screen === 'WatchTV') {
+// TODO: Replace with proper routing mechanism
+export function ScreenBody({
+  screen,
+  videoFullscreen,
+  setVideoFullscreen,
+  showChrome,
+}: Props) {
+  if (screen === 'Discover') {
     return (
-      <Panel title="Watch TV">
-        <Text style={styles.body}>
-          Live television integration will be added here. Sony tuner and HDMI
-          input access are not assumed.
-        </Text>
-      </Panel>
+      <Discover
+        videoFullscreen={videoFullscreen}
+        setVideoFullscreen={setVideoFullscreen}
+        showChrome={showChrome}
+      />
     );
+  }
+
+  if (screen === 'WatchTV') {
+    return <WatchTV />;
   }
 
   if (screen === 'Stream') {
-    return (
-      <Panel>
-        <Navigation
-          active={screen}
-          menuItems={streamMenuItems}
-          onSelect={next => {
-            console.log('Selected screen:', next);
-          }}
-        />
-      </Panel>
-    );
+    return <Stream screen={screen} />;
   }
 
   if (screen === 'MyMedia') {
-    return (
-      <Panel>
-        <Navigation
-          active={screen}
-          menuItems={mediaMenuItems}
-          onSelect={next => {
-            console.log('Selected screen:', next);
-          }}
-        />
-      </Panel>
-    );
+    return <MyMedia screen={screen} />;
   }
 
   if (screen === 'HotelInfo') {
-    return (
-      <Panel>
-        <Navigation
-          active={screen}
-          menuItems={hotelInfoMenuItems}
-          onSelect={next => {
-            console.log('Selected screen:', next);
-          }}
-        />
-      </Panel>
-    );
+    return <HotelInfo screen={screen} />;
   }
 
   if (screen === 'Settings') {
@@ -95,35 +77,7 @@ export function ScreenBody({ screen }: Props) {
   );
 }
 
-function Panel({
-  title,
-  children,
-}: {
-  title?: string;
-  children: React.ReactNode;
-}) {
-  return (
-    <View style={styles.panel}>
-      {title && <Text style={styles.title}>{title}</Text>}
-      {children}
-    </View>
-  );
-}
-
 const styles = StyleSheet.create({
-  panel: {
-    flex: 1,
-    borderRadius: 16,
-    // backgroundColor: colors.stage,
-    borderWidth: 1,
-    // borderColor: colors.divider,
-    padding: 28,
-  },
-  title: {
-    ...type.title,
-    color: colors.textPrimary,
-    marginBottom: 12,
-  },
   body: {
     ...type.body,
     color: colors.textSecondary,

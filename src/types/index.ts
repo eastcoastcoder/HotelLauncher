@@ -21,7 +21,8 @@ export type ScreenId =
   | 'MyMedia'
   | 'HotelInfo'
   | 'Settings'
-  | 'Privacy';
+  | 'Privacy'
+  | string;
 
 export interface HotelFact {
   label: string;

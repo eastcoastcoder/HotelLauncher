@@ -1,8 +1,6 @@
 import React, { useState } from 'react';
 import { BackHandler, StyleSheet, View } from 'react-native';
 import { Header } from '../components/Header';
-import { MainStage } from '../components/MainStage';
-import { NowPlayingPanel } from '../components/NowPlayingPanel';
 import { PromoBanner } from '../components/PromoBanner';
 import { ScreenBody } from '../components/ScreenBody';
 import { Navigation } from '../components/Navigation';
@@ -51,20 +49,12 @@ export function TVApp() {
           />
         </View>
         <View style={styles.main}>
-          {screen === 'Discover' ? (
-            <View style={styles.discover}>
-              <MainStage
-                fullscreen={videoFullscreen}
-                onEnterFullscreen={() => setVideoFullscreen(true)}
-                onExitFullscreen={() => setVideoFullscreen(false)}
-              />
-              <View style={showChrome ? undefined : styles.hidden}>
-                <NowPlayingPanel enabled={showChrome} />
-              </View>
-            </View>
-          ) : (
-            <ScreenBody screen={screen} />
-          )}
+          <ScreenBody
+            screen={screen}
+            videoFullscreen={videoFullscreen}
+            setVideoFullscreen={setVideoFullscreen}
+            showChrome={showChrome}
+          />
           <View style={showChrome ? undefined : styles.hidden}>
             <PromoBanner />
           </View>
@@ -114,9 +104,5 @@ const styles = StyleSheet.create({
   },
   main: {
     flex: 1,
-  },
-  discover: {
-    flex: 1,
-    flexDirection: 'row',
   },
 });
