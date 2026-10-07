@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
-import { menuItems } from '../config/launcherConfig';
 import { colors } from '../theme/colors';
 import { type } from '../theme/typography';
 import { ScreenId } from '../types';
@@ -11,9 +10,20 @@ type Props = {
   active: ScreenId;
   onSelect: (screen: ScreenId) => void;
   enabled?: boolean;
+  menuItems: Array<{
+    id: string;
+    screen: ScreenId;
+    title: string;
+    icon?: string;
+  }>;
 };
 
-export function SideNavigation({ active, onSelect, enabled = true }: Props) {
+export function Navigation({
+  active,
+  onSelect,
+  menuItems,
+  enabled = true,
+}: Props) {
   const [focusedId, setFocusedId] = useState<string | null>(null);
 
   return (

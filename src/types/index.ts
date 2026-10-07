@@ -4,12 +4,13 @@ export type NavIconName =
   | 'stream'
   | 'play'
   | 'hotel'
-  | 'settings';
+  | 'settings'
+  | string;
 
 export interface MenuItem {
   id: string;
   title: string;
-  screen: ScreenId;
+  screen: ScreenId | null;
   icon: NavIconName | null;
 }
 
@@ -26,14 +27,6 @@ export interface HotelFact {
   label: string;
   value: string;
 }
-
-export interface StreamApp {
-  id: string;
-  label: string;
-  packageName: string;
-  verified: boolean;
-}
-
 export interface LauncherConfig {
   hotelName: string;
   hotelBrand: string;
@@ -59,6 +52,5 @@ export interface LauncherConfig {
     image: number;
   };
   hotelInfo: HotelFact[];
-  streamApps: StreamApp[];
   settings: { label: string; value: string }[];
 }

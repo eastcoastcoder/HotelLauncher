@@ -35,34 +35,6 @@ export const launcherConfig: LauncherConfig = {
     { label: 'Check-out', value: '11:00 AM' },
     { label: 'Contact', value: 'front.desk@example.com' },
   ],
-  streamApps: [
-    {
-      id: 'netflix',
-      label: 'Netflix',
-      packageName: 'unverified',
-      verified: false,
-    },
-    {
-      id: 'youtube',
-      label: 'YouTube',
-      packageName: 'unverified',
-      verified: false,
-    },
-    {
-      id: 'prime',
-      label: 'Prime Video',
-      packageName: 'unverified',
-      verified: false,
-    },
-    {
-      id: 'disney',
-      label: 'Disney+',
-      packageName: 'unverified',
-      verified: false,
-    },
-    { id: 'hulu', label: 'Hulu', packageName: 'unverified', verified: false },
-    { id: 'max', label: 'Max', packageName: 'unverified', verified: false },
-  ],
   settings: [
     { label: 'Hotel name', value: 'Hotel Launcher' },
     { label: 'Main video', value: 'Placeholder stage' },
@@ -81,4 +53,111 @@ export const menuItems: MenuItem[] = [
   { id: 'hotel-info', title: 'Hotel Info', screen: 'HotelInfo', icon: 'hotel' },
   { id: 'settings', title: 'Settings', screen: 'Settings', icon: 'settings' },
   { id: 'privacy', title: 'Privacy Center', screen: 'Privacy', icon: null },
+];
+
+export const streamMenuItems: MenuItem[] = [
+  {
+    id: 'netflix',
+    title: 'Netflix',
+    screen: null,
+    icon: null,
+  },
+  {
+    id: 'youtube',
+    title: 'YouTube',
+    screen: null,
+    icon: null,
+  },
+  {
+    id: 'prime',
+    title: 'Amazon Prime Video',
+    screen: null,
+    icon: null,
+  },
+  {
+    id: 'disney',
+    title: 'Disney+',
+    screen: null,
+    icon: null,
+  },
+  { id: 'hulu', title: 'Hulu', screen: null, icon: null },
+  { id: 'max', title: 'Max', screen: null, icon: null },
+];
+
+export const mediaMenuItems: MenuItem[] = [
+  {
+    id: 'chromecast',
+    title: 'Chromecast',
+    screen: null,
+    icon: null,
+  },
+  {
+    id: 'headphones',
+    title: 'Connect My Headphones',
+    screen: null,
+    icon: null,
+  },
+  {
+    id: 'tv-as-speaker',
+    title: 'TV As My Speaker',
+    screen: null,
+    icon: null,
+  },
+  {
+    id: 'hdmi',
+    title: 'HDMI Direct Connect',
+    screen: null,
+    icon: null,
+  },
+];
+
+export const hotelInfoMenuItems: MenuItem[] = [
+  {
+    id: 'dining',
+    title: 'Dining',
+    screen: null,
+    icon: null,
+  },
+  {
+    id: 'fitness',
+    title: 'Fitness',
+    screen: null,
+    icon: null,
+  },
+  {
+    id: 'swimming',
+    title: 'Swimming',
+    screen: null,
+    icon: null,
+  },
+  {
+    id: 'amenities',
+    title: 'Amenities',
+    screen: null,
+    icon: null,
+  },
+  {
+    id: 'local-area',
+    title: 'Local Area',
+    screen: null,
+    icon: null,
+  },
+  {
+    id: 'transportation',
+    title: 'Transportation',
+    screen: null,
+    icon: null,
+  },
+  {
+    id: 'internet',
+    title: 'Internet',
+    screen: null,
+    icon: null,
+  },
+  {
+    id: 'safety-and-security',
+    title: 'Safety and Security',
+    screen: null,
+    icon: null,
+  },
 ];

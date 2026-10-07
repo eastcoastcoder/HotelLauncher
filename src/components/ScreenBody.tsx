@@ -1,9 +1,15 @@
 import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
-import { launcherConfig } from '../config/launcherConfig';
+import {
+  launcherConfig,
+  streamMenuItems,
+  mediaMenuItems,
+  hotelInfoMenuItems,
+} from '../config/launcherConfig';
 import { colors } from '../theme/colors';
 import { type } from '../theme/typography';
 import { ScreenId } from '../types';
+import { Navigation } from './Navigation';
 
 type Props = {
   screen: Exclude<ScreenId, 'Discover'>;
@@ -23,40 +29,42 @@ export function ScreenBody({ screen }: Props) {
 
   if (screen === 'Stream') {
     return (
-      <Panel title="Stream">
-        <Text style={styles.body}>
-          Installed apps will be listed after a PackageManager bridge exists.
-          Package IDs below are not verified and cannot be launched yet.
-        </Text>
-        {launcherConfig.streamApps.map(app => (
-          <Text key={app.id} style={styles.row}>
-            {app.label}
-            <Text style={styles.muted}> · package unverified</Text>
-          </Text>
-        ))}
+      <Panel>
+        <Navigation
+          active={screen}
+          menuItems={streamMenuItems}
+          onSelect={next => {
+            console.log('Selected screen:', next);
+          }}
+        />
       </Panel>
     );
   }
 
   if (screen === 'MyMedia') {
     return (
-      <Panel title="My Media">
-        <Text style={styles.body}>
-          Local and network media will appear here in a later phase.
-        </Text>
+      <Panel>
+        <Navigation
+          active={screen}
+          menuItems={mediaMenuItems}
+          onSelect={next => {
+            console.log('Selected screen:', next);
+          }}
+        />
       </Panel>
     );
   }
 
   if (screen === 'HotelInfo') {
     return (
-      <Panel title="Hotel Information">
-        {launcherConfig.hotelInfo.map(fact => (
-          <View key={fact.label} style={styles.fact}>
-            <Text style={styles.factLabel}>{fact.label}</Text>
-            <Text style={styles.factValue}>{fact.value}</Text>
-          </View>
-        ))}
+      <Panel>
+        <Navigation
+          active={screen}
+          menuItems={hotelInfoMenuItems}
+          onSelect={next => {
+            console.log('Selected screen:', next);
+          }}
+        />
       </Panel>
     );
   }
@@ -91,12 +99,12 @@ function Panel({
   title,
   children,
 }: {
-  title: string;
+  title?: string;
   children: React.ReactNode;
 }) {
   return (
     <View style={styles.panel}>
-      <Text style={styles.title}>{title}</Text>
+      {title && <Text style={styles.title}>{title}</Text>}
       {children}
     </View>
   );
@@ -106,9 +114,9 @@ const styles = StyleSheet.create({
   panel: {
     flex: 1,
     borderRadius: 16,
-    backgroundColor: colors.stage,
+    // backgroundColor: colors.stage,
     borderWidth: 1,
-    borderColor: colors.divider,
+    // borderColor: colors.divider,
     padding: 28,
   },
   title: {

@@ -5,9 +5,10 @@ import { MainStage } from '../components/MainStage';
 import { NowPlayingPanel } from '../components/NowPlayingPanel';
 import { PromoBanner } from '../components/PromoBanner';
 import { ScreenBody } from '../components/ScreenBody';
-import { SideNavigation } from '../components/SideNavigation';
+import { Navigation } from '../components/Navigation';
 import { colors } from '../theme/colors';
 import { ScreenId } from '../types';
+import { menuItems } from '../config/launcherConfig';
 
 export function TVApp() {
   const [screen, setScreen] = useState<ScreenId>('Discover');
@@ -39,9 +40,10 @@ export function TVApp() {
       </View>
       <View style={[styles.body, showChrome ? undefined : styles.bodyFull]}>
         <View style={showChrome ? undefined : styles.hidden}>
-          <SideNavigation
+          <Navigation
             active={screen}
             enabled={showChrome}
+            menuItems={menuItems}
             onSelect={next => {
               setVideoFullscreen(false);
               setScreen(next);
