@@ -29,6 +29,7 @@ export interface HotelFact {
 export interface LauncherConfig {
   hotelName: string;
   hotelBrand: string;
+  logo: number;
   welcomeKicker: string;
   welcomeMessage: string;
   weather: {

@@ -1,11 +1,13 @@
+import cobrandedLogo from '../assets/dogebonk-cheemsyard-cobranded-logo.png';
 import dogeBonk from '../assets/doge-bonk.png';
 import { LauncherConfig, MenuItem } from '../types';
 
 export const launcherConfig: LauncherConfig = {
   hotelName: 'Hotel Launcher',
   hotelBrand: 'STAY',
+  logo: cobrandedLogo,
   welcomeKicker: 'BIG SPENDER MEMBER',
-  welcomeMessage: 'Good Evening, hoss',
+  welcomeMessage: 'Good Evening, Ethan',
   weather: {
     summary: 'Clear',
     fahrenheit: 72,
