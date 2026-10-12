@@ -1,8 +1,9 @@
 import { Panel } from '../components/Panel';
 import { Navigation } from '../components/Navigation';
 import { hotelInfoMenuItems } from '../config/launcherConfig';
+import { ScreenId } from '../types';
 
-export function HotelInfo({ screen }: { screen: string }) {
+export function HotelInfo({ screen }: { screen: ScreenId }) {
   return (
     <Panel>
       <Navigation

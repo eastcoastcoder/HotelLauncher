@@ -1,4 +1,4 @@
-import dodgeBonk from '../assets/dodge-bonk.png';
+import dogeBonk from '../assets/doge-bonk.png';
 import { LauncherConfig, MenuItem } from '../types';
 
 export const launcherConfig: LauncherConfig = {
@@ -23,7 +23,7 @@ export const launcherConfig: LauncherConfig = {
     cta: 'LEARN MORE',
   },
   promoBanner: {
-    image: dodgeBonk,
+    image: dogeBonk,
   },
   hotelInfo: [
     { label: 'Front Desk', value: 'Dial 0' },
@@ -57,8 +57,8 @@ export const menuItems: MenuItem[] = [
 
 export const streamMenuItems: MenuItem[] = [
   {
-    id: 'netflix',
-    title: 'Netflix',
+    id: 'bonkflix',
+    title: 'Bonkflix',
     screen: null,
     icon: null,
   },

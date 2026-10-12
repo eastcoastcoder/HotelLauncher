@@ -31,7 +31,7 @@ D-pad only: Up, Down, Left, Right, Select, Back. Focus must be obvious. Back ret
 
 ## Phases
 
-### Phase 1 — MVP (this execution)
+### Phase 1 — MVP
 
 - [x] TV project scaffold (Community CLI + `@react-native-tvos/template-tv@0.83.0-0`)
 - [x] iOS target removed
@@ -41,7 +41,13 @@ D-pad only: Up, Down, Left, Right, Select, Back. Focus must be obvious. Back ret
 - [x] `npm install` and TypeScript check
 - [x] Sideload debug APK onto the A90K (needs Android SDK + device)
 
-### Phase 2 — Functional TV
+### Phase 2 — Clone
+
+- [] Add ability to make background change image on focus of Navigation, specifically use bonkflixbg when Bonkflix is active, see User Notes section
+- [] Make "Connect my headphones" in My Media open bluetooth settings
+- [] Introduce themes. The current layout stays the same. Switching to the retro theme can change the background, sidebar colors, and related surfaces. More themes can be added later to mirror other hotel brands.
+
+### Phase 3 — Functional TV
 
 Installed-app discovery (PackageManager bridge), launch external apps, persistent settings, network/HLS video, promo rotation, QR, weather, screensaver.
 
@@ -52,11 +58,11 @@ Main stage streams recent uploads from a YouTube channel. Copy `src/config/mainS
 
 Playback streams one video at a time in a WebView, then advances. It does not download the catalog. The config object is the seam for a later settings screen, which should pass the same channel and exclude list instead of a source edit.
 
-### Phase 3 — Sony
+### Phase 4 — Sony
 
 Tuner, HDMI input, volume, power, boot, real Home replacement. Only if the A90K allows it. Do not block Phase 1 on these.
 
-### Phase 4 — Hotel mode
+### Phase 5 — Hotel mode
 
 Locked admin config (branding, video, promos, hotel info, menu) without source edits.
 
@@ -80,7 +86,7 @@ If the TV offers this app as Home and navigation breaks, hold the remote Home bu
 
 ## User Notes
 
-Apply this to Netflix background
+Apply this to Bonkflix background
 
 linear-gradient(7deg, rgba(0, 0, 0, 0.8500) 10.00%, rgba(0, 0, 0, 0.8465) 17.25%, rgba(0, 0, 0, 0.8361) 24.50%, rgba(0, 0, 0, 0.8187) 31.75%, rgba(0, 0, 0, 0.7944) 39.00%, rgba(0, 0, 0, 0.7632) 46.25%, rgba(0, 0, 0, 0.7250) 53.50%, rgba(0, 0, 0, 0.6868) 60.75%, rgba(0, 0, 0, 0.6556) 68.00%, rgba(0, 0, 0, 0.6312) 75.25%, rgba(0, 0, 0, 0.6139) 82.50%, rgba(0, 0, 0, 0.6035) 89.75%, rgba(0, 0, 0, 0.6000) 97.00%)
 

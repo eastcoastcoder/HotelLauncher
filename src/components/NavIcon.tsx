@@ -8,22 +8,24 @@ type Props = {
 };
 
 export function NavIcon({ name, color }: Props) {
-  if (name === 'home') {
-    return <Home color={color} />;
+  switch (name) {
+    case 'home':
+      return <Home color={color} />;
+    case 'tv':
+      return <Tv color={color} />;
+    case 'stream':
+      return <Stream color={color} />;
+    case 'play':
+      return <Play color={color} />;
+    case 'hotel':
+      return <Hotel color={color} />;
+    case 'settings':
+      return <Settings color={color} />;
+    default: {
+      const unexpected: never = name;
+      return unexpected;
+    }
   }
-  if (name === 'tv') {
-    return <Tv color={color} />;
-  }
-  if (name === 'stream') {
-    return <Stream color={color} />;
-  }
-  if (name === 'play') {
-    return <Play color={color} />;
-  }
-  if (name === 'hotel') {
-    return <Hotel color={color} />;
-  }
-  return <Settings color={color} />;
 }
 
 function Home({ color }: { color: string }) {

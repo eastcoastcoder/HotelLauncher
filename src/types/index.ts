@@ -4,8 +4,7 @@ export type NavIconName =
   | 'stream'
   | 'play'
   | 'hotel'
-  | 'settings'
-  | string;
+  | 'settings';
 
 export interface MenuItem {
   id: string;
@@ -21,8 +20,7 @@ export type ScreenId =
   | 'MyMedia'
   | 'HotelInfo'
   | 'Settings'
-  | 'Privacy'
-  | string;
+  | 'Privacy';
 
 export interface HotelFact {
   label: string;

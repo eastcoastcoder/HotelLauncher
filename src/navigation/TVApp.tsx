@@ -43,6 +43,9 @@ export function TVApp() {
             enabled={showChrome}
             menuItems={menuItems}
             onSelect={next => {
+              if (next == null) {
+                return;
+              }
               setVideoFullscreen(false);
               setScreen(next);
             }}

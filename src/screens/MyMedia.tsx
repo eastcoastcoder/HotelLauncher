@@ -1,8 +1,9 @@
 import { Panel } from '../components/Panel';
 import { Navigation } from '../components/Navigation';
 import { mediaMenuItems } from '../config/launcherConfig';
+import { ScreenId } from '../types';
 
-export function MyMedia({ screen }: { screen: string }) {
+export function MyMedia({ screen }: { screen: ScreenId }) {
   return (
     <Panel>
       <Navigation

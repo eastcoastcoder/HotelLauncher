@@ -67,14 +67,19 @@ export function ScreenBody({
     );
   }
 
-  return (
-    <Panel title="Privacy Center">
-      <Text style={styles.body}>
-        This television does not collect guest accounts in this build. Streaming
-        apps, when added, open under their own privacy terms.
-      </Text>
-    </Panel>
-  );
+  if (screen === 'Privacy') {
+    return (
+      <Panel title="Privacy Center">
+        <Text style={styles.body}>
+          This television does not collect guest accounts in this build. Streaming
+          apps, when added, open under their own privacy terms.
+        </Text>
+      </Panel>
+    );
+  }
+
+  const unexpected: never = screen;
+  return unexpected;
 }
 
 const styles = StyleSheet.create({

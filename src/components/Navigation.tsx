@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { colors } from '../theme/colors';
 import { type } from '../theme/typography';
-import { ScreenId } from '../types';
+import { MenuItem, ScreenId } from '../types';
 import { Focusable } from './Focusable';
 import { NavIcon } from './NavIcon';
 
@@ -10,12 +10,7 @@ type Props = {
   active: ScreenId;
   onSelect: (screen: ScreenId | null) => void;
   enabled?: boolean;
-  menuItems: Array<{
-    id: string;
-    screen: ScreenId | null;
-    title: string;
-    icon?: string | null;
-  }>;
+  menuItems: readonly MenuItem[];
 };
 
 export function Navigation({
