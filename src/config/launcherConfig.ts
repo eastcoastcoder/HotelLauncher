@@ -1,6 +1,6 @@
 import cobrandedLogo from '../assets/dogebonk-cheemsyard-cobranded-logo.png';
 import dogeBonk from '../assets/doge-bonk.png';
-import { LauncherConfig, MenuItem } from '../types';
+import { LauncherConfig, MenuItem, StreamMenuItem } from '../types';
 
 export const launcherConfig: LauncherConfig = {
   hotelName: 'Hotel Launcher',
@@ -57,33 +57,55 @@ export const menuItems: MenuItem[] = [
   { id: 'privacy', title: 'Privacy Center', screen: 'Privacy', icon: null },
 ];
 
-export const streamMenuItems: MenuItem[] = [
+export const streamMenuItems: StreamMenuItem[] = [
   {
     id: 'bonkflix',
     title: 'Bonkflix',
     screen: null,
     icon: null,
+    appId: 'com.netflix.ninja',
+    customAppId: null,
   },
   {
     id: 'youtube',
     title: 'YouTube',
     screen: null,
     icon: null,
+    appId: 'com.google.android.youtube.tv',
+    customAppId: null,
   },
   {
     id: 'prime',
     title: 'Amazon Prime Video',
     screen: null,
     icon: null,
+    appId: 'com.amazon.amazonvideo.livingroom',
+    customAppId: null,
   },
   {
     id: 'disney',
     title: 'Disney+',
     screen: null,
     icon: null,
+    appId: 'com.disney.disneyplus',
+    customAppId: null,
   },
-  { id: 'hulu', title: 'Hulu', screen: null, icon: null },
-  { id: 'max', title: 'Max', screen: null, icon: null },
+  {
+    id: 'hulu',
+    title: 'Hulu',
+    screen: null,
+    icon: null,
+    appId: 'com.hulu.livingroomplus',
+    customAppId: null,
+  },
+  {
+    id: 'max',
+    title: 'Max',
+    screen: null,
+    icon: null,
+    appId: 'com.wbd.stream',
+    customAppId: null,
+  },
 ];
 
 export const mediaMenuItems: MenuItem[] = [

@@ -51,6 +51,8 @@ D-pad only: Up, Down, Left, Right, Select, Back. Focus must be obvious. Back ret
 
 Installed-app discovery (PackageManager bridge), launch external apps, persistent settings, network/HLS video, promo rotation, QR, weather, screensaver.
 
+- [x] Stream rows launch their Android `appId`. Hold Select opens an installed-app picker, saves `customAppId`, and Clear restores the built-in app.
+
 Main stage streams recent uploads from a YouTube channel. Copy `src/config/mainStage.example.json` to `src/config/mainStage.local.json` (gitignored) and set:
 
 - `channel`: channel URL, `@handle`, or channel id. For example `http://youtube.com/@hotelchannel`.

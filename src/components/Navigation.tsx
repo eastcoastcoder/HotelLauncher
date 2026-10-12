@@ -10,15 +10,23 @@ import { NavIcon } from './NavIcon';
 type Props = {
   active: ScreenId;
   onSelect: (screen: ScreenId | null) => void;
+  onItemPress?: (item: MenuItem) => void;
+  onItemLongPress?: (item: MenuItem) => void;
   enabled?: boolean;
   menuItems: readonly MenuItem[];
+  preferredFocusId?: string | null;
+  preferredFocusNonce?: number;
 };
 
 export function Navigation({
   active,
   onSelect,
+  onItemPress,
+  onItemLongPress,
   menuItems,
   enabled = true,
+  preferredFocusId = null,
+  preferredFocusNonce = 0,
 }: Props) {
   const [focusedId, setFocusedId] = useState<string | null>(null);
   const {
@@ -43,13 +51,33 @@ export function Navigation({
         const color = emphasized ? colors.navActive : colors.navIdle;
         return (
           <Focusable
-            key={item.id}
+            key={
+              preferredFocusId === item.id
+                ? `${item.id}:${preferredFocusNonce}`
+                : item.id
+            }
             focusable={enabled}
-            hasTVPreferredFocus={index === 0}
+            hasTVPreferredFocus={
+              preferredFocusId != null
+                ? preferredFocusId === item.id
+                : index === 0
+            }
             onPress={() => {
               setActiveMenuItem(item.id);
+              if (onItemPress) {
+                onItemPress(item);
+                return;
+              }
               onSelect(item.screen);
             }}
+            onLongPress={
+              onItemLongPress == null
+                ? undefined
+                : () => {
+                    onItemLongPress(item);
+                  }
+            }
+            delayLongPress={700}
             onFocusChange={focused => {
               setFocusedId(current => {
                 if (focused) {

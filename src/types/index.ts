@@ -11,6 +11,15 @@ export interface MenuItem {
   title: string;
   screen: ScreenId | null;
   icon: NavIconName | null;
+  /** Android package launched on Select. Null when the row has no built-in app. */
+  appId?: string | null;
+  /** Guest override of appId. Null uses appId. Persisted outside this config. */
+  customAppId?: string | null;
+}
+
+export interface StreamMenuItem extends MenuItem {
+  appId: string | null;
+  customAppId: string | null;
 }
 
 export type ScreenId =

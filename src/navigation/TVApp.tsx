@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { BackHandler, StyleSheet, View } from 'react-native';
 import { Header } from '../components/Header';
+import { LaunchNotice } from '../components/LaunchNotice';
 import { Navigation } from '../components/Navigation';
 import { PromoBanner } from '../components/PromoBanner';
 import { ScreenBackground } from '../components/ScreenBackground';
@@ -68,6 +69,7 @@ export function TVApp() {
           <View style={showChrome ? undefined : styles.hidden}>
             <PromoBanner />
           </View>
+          {showChrome ? <LaunchNotice /> : null}
         </View>
       </View>
     </View>

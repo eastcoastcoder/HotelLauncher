@@ -1,10 +1,15 @@
 import React from 'react';
 import { BackgroundProvider } from './BackgroundContext';
+import { LaunchNoticeProvider } from './LaunchNoticeContext';
 
 /**
  * App-wide state. Background is its own context so a later theme context
  * can sit beside it and pass a different background map.
  */
 export function AppProviders({ children }: { children: React.ReactNode }) {
-  return <BackgroundProvider>{children}</BackgroundProvider>;
+  return (
+    <BackgroundProvider>
+      <LaunchNoticeProvider>{children}</LaunchNoticeProvider>
+    </BackgroundProvider>
+  );
 }

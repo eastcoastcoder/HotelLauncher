@@ -11,11 +11,14 @@ import { colors } from '../theme/colors';
 type Props = {
   children: React.ReactNode;
   onPress?: () => void;
+  onLongPress?: () => void;
+  delayLongPress?: number;
   hasTVPreferredFocus?: boolean;
   focusable?: boolean;
   style?: StyleProp<ViewStyle>;
   focusedStyle?: StyleProp<ViewStyle>;
   onFocusChange?: (focused: boolean) => void;
+  testID?: string;
   nextFocusUp?: number;
   nextFocusDown?: number;
   nextFocusLeft?: number;
@@ -26,11 +29,14 @@ export const Focusable = React.forwardRef<View, Props>(function FocusableControl
   {
     children,
     onPress,
+    onLongPress,
+    delayLongPress,
     hasTVPreferredFocus,
     focusable = true,
     style,
     focusedStyle,
     onFocusChange,
+    testID,
     nextFocusUp,
     nextFocusDown,
     nextFocusLeft,
@@ -46,6 +52,8 @@ export const Focusable = React.forwardRef<View, Props>(function FocusableControl
       focusable={focusable}
       hasTVPreferredFocus={hasTVPreferredFocus}
       onPress={onPress}
+      onLongPress={onLongPress}
+      delayLongPress={delayLongPress}
       onFocus={() => {
         setFocused(true);
         onFocusChange?.(true);
@@ -58,6 +66,7 @@ export const Focusable = React.forwardRef<View, Props>(function FocusableControl
       nextFocusDown={nextFocusDown}
       nextFocusLeft={nextFocusLeft}
       nextFocusRight={nextFocusRight}
+      testID={testID}
       style={[
         styles.base,
         style,
