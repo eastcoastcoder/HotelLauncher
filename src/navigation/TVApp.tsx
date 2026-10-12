@@ -1,17 +1,21 @@
 import React, { useState } from 'react';
 import { BackHandler, StyleSheet, View } from 'react-native';
 import { Header } from '../components/Header';
-import { PromoBanner } from '../components/PromoBanner';
-import { ScreenBody } from '../components/ScreenBody';
 import { Navigation } from '../components/Navigation';
-import { colors } from '../theme/colors';
-import { ScreenId } from '../types';
+import { PromoBanner } from '../components/PromoBanner';
+import { ScreenBackground } from '../components/ScreenBackground';
+import { ScreenBody } from '../components/ScreenBody';
 import { menuItems } from '../config/launcherConfig';
+import { useScreenBackground } from '../context/BackgroundContext';
+import { colors } from '../theme/colors';
+import { defaultScreenGradient } from '../theme/screenBackground';
+import { ScreenId } from '../types';
 
 export function TVApp() {
   const [screen, setScreen] = useState<ScreenId>('Discover');
   const [videoFullscreen, setVideoFullscreen] = useState(false);
   const showChrome = !videoFullscreen;
+  const screenBackground = useScreenBackground();
 
   React.useEffect(() => {
     const subscription = BackHandler.addEventListener(
@@ -32,7 +36,10 @@ export function TVApp() {
   }, [screen, videoFullscreen]);
 
   return (
-    <View style={styles.root}>
+    <View style={screenBackground ? styles.rootPlain : styles.root}>
+      {screenBackground ? (
+        <ScreenBackground background={screenBackground} />
+      ) : null}
       <View style={showChrome ? undefined : styles.hidden}>
         <Header />
       </View>
@@ -71,26 +78,11 @@ const styles = StyleSheet.create({
   root: {
     flex: 1,
     backgroundColor: colors.background,
-    // Hard black through the top three quarters, then the wash from Gradient.jpg
-    // through to hard white at the bottom edge.
-    experimental_backgroundImage: [
-      {
-        type: 'linear-gradient',
-        direction: 'to bottom',
-        colorStops: [
-          { color: '#000000', positions: ['0%'] },
-          { color: '#000000', positions: ['75%'] },
-          { color: '#0F182D', positions: ['79%'] },
-          { color: '#293A68', positions: ['82%'] },
-          { color: '#38569E', positions: ['85%'] },
-          { color: '#4A6BAF', positions: ['88%'] },
-          { color: '#6E8ABF', positions: ['91%'] },
-          { color: '#A9B7D6', positions: ['94%'] },
-          { color: '#E4E8F2', positions: ['97%'] },
-          { color: '#FFFFFF', positions: ['100%'] },
-        ],
-      },
-    ],
+    experimental_backgroundImage: defaultScreenGradient,
+  },
+  rootPlain: {
+    flex: 1,
+    backgroundColor: colors.background,
   },
   body: {
     flex: 1,

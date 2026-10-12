@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
+import { useBackground } from '../context/BackgroundContext';
 import { colors } from '../theme/colors';
 import { type } from '../theme/typography';
 import { MenuItem, ScreenId } from '../types';
@@ -20,6 +21,18 @@ export function Navigation({
   enabled = true,
 }: Props) {
   const [focusedId, setFocusedId] = useState<string | null>(null);
+  const {
+    setHoveredMenuItem,
+    clearHoveredMenuItem,
+    setActiveMenuItem,
+    releaseMenuItems,
+  } = useBackground();
+  const menuItemKey = menuItems.map(item => item.id).join('\0');
+
+  useEffect(() => {
+    const ids = new Set(menuItemKey === '' ? [] : menuItemKey.split('\0'));
+    return () => releaseMenuItems(ids);
+  }, [menuItemKey, releaseMenuItems]);
 
   return (
     <View style={styles.column}>
@@ -33,7 +46,10 @@ export function Navigation({
             key={item.id}
             focusable={enabled}
             hasTVPreferredFocus={index === 0}
-            onPress={() => onSelect(item.screen)}
+            onPress={() => {
+              setActiveMenuItem(item.id);
+              onSelect(item.screen);
+            }}
             onFocusChange={focused => {
               setFocusedId(current => {
                 if (focused) {
@@ -41,6 +57,11 @@ export function Navigation({
                 }
                 return current === item.id ? null : current;
               });
+              if (focused) {
+                setHoveredMenuItem(item.id);
+              } else {
+                clearHoveredMenuItem(item.id);
+              }
             }}
             style={[styles.item, emphasized && styles.itemOn]}
             focusedStyle={styles.itemOn}

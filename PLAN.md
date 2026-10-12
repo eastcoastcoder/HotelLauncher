@@ -43,7 +43,7 @@ D-pad only: Up, Down, Left, Right, Select, Back. Focus must be obvious. Back ret
 
 ### Phase 2 — Clone
 
-- [] Add ability to make background change image on focus of Navigation, specifically use bonkflixbg when Bonkflix is active, see User Notes section
+- [x] Add ability to make background change image on focus of Navigation, specifically use bonkflixbg when Bonkflix is active, see User Notes section
 - [] Make "Connect my headphones" in My Media open bluetooth settings
 - [] Introduce themes. The current layout stays the same. Switching to the retro theme can change the background, sidebar colors, and related surfaces. More themes can be added later to mirror other hotel brands.
 
