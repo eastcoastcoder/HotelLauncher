@@ -5,7 +5,7 @@ Built with **React Native TV** (`react-native-tvos`). Branding is data-driven so
 
 ## Scope
 
-Android TV only. Do not add iOS, tvOS, phone, tablet, or web targets.
+Android TV only for Phases 2–5, on the Sony BRAVIA A90K. Do not add phone, tablet, or web targets. tvOS is a later goal; do not restore that target during Phases 2–5. See Later — tvOS alongside Android TV.
 The A90K may refuse a third-party app as the permanent system Home. The app must stay launchable from the TV apps row and recoverable if Home replacement is declined.
 
 ## Stack
@@ -65,6 +65,16 @@ Tuner, HDMI input, volume, power, boot, real Home replacement. Only if the A90K 
 ### Phase 5 — Hotel mode
 
 Locked admin config (branding, video, promos, hotel info, menu) without source edits.
+
+## Later — tvOS alongside Android TV
+
+Phone, tablet, and web stay out. This is not part of Phases 2–5.
+
+Goal: bring the tvOS target back so one launcher runs on Android TV and tvOS. Start only after the Android TV app on the A90K is stable.
+
+The open risk is one codebase serving both platforms. Shared UI, D-pad focus, and the Discover YouTube WebView must keep working on Android TV when the tvOS project returns. Platform-specific native code and builds must not break the A90K sideload.
+
+This is done when both targets are proven and the A90K app is still launchable.
 
 ## Run
 
