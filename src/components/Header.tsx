@@ -8,7 +8,7 @@ const SOURCE_WIDTH = 2169;
 const SOURCE_HEIGHT = 725;
 // The file is a near-black matte around the lockup. Cropping to the artwork
 // keeps DOGE BONK and CHEEMSYARD large enough to read in the header.
-const ART = { x: 8, y: 150, width: 2082, height: 438 };
+const ART = { x: 8, y: 150, width: 2169, height: 438 };
 const LOGO_HEIGHT = 72;
 
 function formatClock(date: Date) {
