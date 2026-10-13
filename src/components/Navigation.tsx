@@ -11,6 +11,7 @@ type Props = {
   active: ScreenId;
   onSelect: (screen: ScreenId | null) => void;
   onItemPress?: (item: MenuItem) => void;
+  onItemPressOut?: (item: MenuItem) => void;
   onItemLongPress?: (item: MenuItem) => void;
   enabled?: boolean;
   menuItems: readonly MenuItem[];
@@ -22,6 +23,7 @@ export function Navigation({
   active,
   onSelect,
   onItemPress,
+  onItemPressOut,
   onItemLongPress,
   menuItems,
   enabled = true,
@@ -70,6 +72,13 @@ export function Navigation({
               }
               onSelect(item.screen);
             }}
+            onPressOut={
+              onItemPressOut == null
+                ? undefined
+                : () => {
+                    onItemPressOut(item);
+                  }
+            }
             onLongPress={
               onItemLongPress == null
                 ? undefined

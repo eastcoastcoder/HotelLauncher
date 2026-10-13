@@ -11,6 +11,7 @@ import { colors } from '../theme/colors';
 type Props = {
   children: React.ReactNode;
   onPress?: () => void;
+  onPressOut?: () => void;
   onLongPress?: () => void;
   delayLongPress?: number;
   hasTVPreferredFocus?: boolean;
@@ -29,6 +30,7 @@ export const Focusable = React.forwardRef<View, Props>(function FocusableControl
   {
     children,
     onPress,
+    onPressOut,
     onLongPress,
     delayLongPress,
     hasTVPreferredFocus,
@@ -52,6 +54,7 @@ export const Focusable = React.forwardRef<View, Props>(function FocusableControl
       focusable={focusable}
       hasTVPreferredFocus={hasTVPreferredFocus}
       onPress={onPress}
+      onPressOut={onPressOut}
       onLongPress={onLongPress}
       delayLongPress={delayLongPress}
       onFocus={() => {

@@ -4,6 +4,7 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.content.pm.ResolveInfo
 import android.os.Build
+import android.util.Log
 import com.facebook.react.bridge.Arguments
 import com.facebook.react.bridge.Promise
 import com.facebook.react.bridge.ReactApplicationContext
@@ -34,8 +35,10 @@ class InstalledAppsModule(reactContext: ReactApplicationContext) :
             row.putString("label", label)
             rows.pushMap(row)
           }
+      Log.i(NAME, "listInstalledApps count=${rows.size()}")
       promise.resolve(rows)
-    } catch (error: Exception) {
+    } catch (error: Throwable) {
+      Log.e(NAME, "listInstalledApps failed", error)
       promise.reject("LIST_FAILED", error.message, error)
     }
   }
@@ -111,8 +114,13 @@ class InstalledAppsModule(reactContext: ReactApplicationContext) :
       if (appId == reactApplicationContext.packageName || apps.containsKey(appId)) {
         continue
       }
-      val label = info.loadLabel(packageManager)?.toString()?.trim().orEmpty()
-      apps[appId] = if (label.isEmpty()) appId else label
+      try {
+        val label = info.loadLabel(packageManager)?.toString()?.trim().orEmpty()
+        apps[appId] = if (label.isEmpty()) appId else label
+      } catch (error: Throwable) {
+        Log.w(NAME, "Skipped $appId", error)
+        apps[appId] = appId
+      }
     }
   }
 

@@ -23,6 +23,8 @@ export function Stream({ screen }: { screen: ScreenId }) {
     'loading',
   );
   const { setNotice } = useLaunchNotice();
+  const pickerIdRef = useRef<string | null>(null);
+  const [dialogArmed, setDialogArmed] = useState(false);
   const [preferredFocusId, setPreferredFocusId] = useState<string | null>(null);
   const [preferredFocusNonce, setPreferredFocusNonce] = useState(0);
   const listRequest = useRef(0);
@@ -59,14 +61,18 @@ export function Stream({ screen }: { screen: ScreenId }) {
   const pickerItem = items.find(item => item.id === pickerId) ?? null;
 
   const closePicker = useCallback(() => {
-    setPreferredFocusId(pickerId);
+    setPreferredFocusId(pickerIdRef.current);
     setPreferredFocusNonce(nonce => nonce + 1);
+    pickerIdRef.current = null;
     setPickerId(null);
-  }, [pickerId]);
+    setDialogArmed(false);
+  }, []);
 
   const openPicker = useCallback((menuItemId: string) => {
     const request = listRequest.current + 1;
     listRequest.current = request;
+    pickerIdRef.current = menuItemId;
+    setDialogArmed(false);
     setPickerId(menuItemId);
     setAppsStatus('loading');
     setApps([]);
@@ -87,8 +93,18 @@ export function Stream({ screen }: { screen: ScreenId }) {
       });
   }, []);
 
+  const onPickerPressOut = useCallback(() => {
+    if (pickerIdRef.current == null) {
+      return;
+    }
+    setDialogArmed(true);
+  }, []);
+
   const onItemPress = useCallback(
     (item: MenuItem) => {
+      if (pickerIdRef.current != null) {
+        return;
+      }
       const appId = resolveLaunchAppId(item);
       if (appId == null) {
         setNotice(`Hold Select to choose an app for ${item.title}.`);
@@ -109,30 +125,32 @@ export function Stream({ screen }: { screen: ScreenId }) {
 
   const onChoose = useCallback(
     (appId: string) => {
-      if (pickerId == null) {
+      if (pickerIdRef.current == null) {
         return;
       }
-      const menuItemId = pickerId;
+      const menuItemId = pickerIdRef.current;
       setCustomAppId(menuItemId, appId)
         .then(() => {
           setCustomAppIds(current => ({ ...current, [menuItemId]: appId }));
           setNotice(null);
           setPreferredFocusId(menuItemId);
           setPreferredFocusNonce(nonce => nonce + 1);
+          pickerIdRef.current = null;
           setPickerId(null);
+          setDialogArmed(false);
         })
         .catch(() => {
           setNotice('The custom app could not be saved.');
         });
     },
-    [pickerId, setNotice],
+    [setNotice],
   );
 
   const onClear = useCallback(() => {
-    if (pickerId == null) {
+    if (pickerIdRef.current == null) {
       return;
     }
-    const menuItemId = pickerId;
+    const menuItemId = pickerIdRef.current;
     clearCustomAppId(menuItemId)
       .then(() => {
         setCustomAppIds(current => {
@@ -145,18 +163,19 @@ export function Stream({ screen }: { screen: ScreenId }) {
       .catch(() => {
         setNotice('The custom app could not be cleared.');
       });
-  }, [pickerId, setNotice]);
+  }, [setNotice]);
 
   return (
     <Panel>
       <Navigation
         active={screen}
         menuItems={items}
-        enabled={pickerItem == null}
+        enabled={pickerItem == null || !dialogArmed}
         preferredFocusId={preferredFocusId}
         preferredFocusNonce={preferredFocusNonce}
         onSelect={() => {}}
         onItemPress={onItemPress}
+        onItemPressOut={onPickerPressOut}
         onItemLongPress={item => openPicker(item.id)}
       />
       {pickerItem ? (
@@ -164,6 +183,7 @@ export function Stream({ screen }: { screen: ScreenId }) {
           item={pickerItem}
           apps={apps}
           status={appsStatus}
+          armed={dialogArmed}
           onChoose={onChoose}
           onClear={onClear}
           onClose={closePicker}

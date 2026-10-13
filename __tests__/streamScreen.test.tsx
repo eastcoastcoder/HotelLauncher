@@ -1,6 +1,7 @@
 import React from 'react';
 import ReactTestRenderer from 'react-test-renderer';
 import { StyleSheet, Text } from 'react-native';
+
 import { LaunchNotice } from '../src/components/LaunchNotice';
 import { BackgroundProvider } from '../src/context/BackgroundContext';
 import { LaunchNoticeProvider } from '../src/context/LaunchNoticeContext';
@@ -12,22 +13,6 @@ import {
   listInstalledApps,
   setCustomAppId,
 } from '../src/services/installedApps';
-
-jest.mock('react-native/Libraries/Modal/Modal', () => {
-  const ReactActual = require('react');
-  const { View: MockView } = require('react-native');
-  const Modal = ({
-    visible,
-    children,
-  }: {
-    visible?: boolean;
-    children?: React.ReactNode;
-  }) =>
-    visible === false
-      ? null
-      : ReactActual.createElement(MockView, null, children);
-  return { __esModule: true, default: Modal };
-});
 
 jest.mock('../src/services/installedApps', () => ({
   listInstalledApps: jest.fn(async () => [
@@ -78,6 +63,14 @@ async function flush() {
   });
 }
 
+async function releaseOpeningSelect(
+  renderer: ReactTestRenderer.ReactTestRenderer,
+) {
+  await ReactTestRenderer.act(async () => {
+    pressableFor(renderer, 'YouTube').props.onPressOut();
+  });
+}
+
 function renderStream() {
   let renderer!: ReactTestRenderer.ReactTestRenderer;
   ReactTestRenderer.act(() => {
@@ -110,6 +103,7 @@ test('select launches the built-in app and hold Select can replace or clear it',
   await flush();
   expect(mockedList).toHaveBeenCalled();
   expect(renderer.root.findByProps({ testID: 'custom-app-dialog' })).toBeTruthy();
+  await releaseOpeningSelect(renderer);
 
   await ReactTestRenderer.act(async () => {
     renderer.root
@@ -129,6 +123,7 @@ test('select launches the built-in app and hold Select can replace or clear it',
     pressableFor(renderer, 'YouTube').props.onLongPress();
   });
   await flush();
+  await releaseOpeningSelect(renderer);
   await ReactTestRenderer.act(async () => {
     renderer.root.findByProps({ testID: 'custom-app-clear' }).props.onPress();
   });
@@ -137,13 +132,10 @@ test('select launches the built-in app and hold Select can replace or clear it',
   expect(renderer.root.findByProps({ testID: 'custom-app-dialog' })).toBeTruthy();
 
   await ReactTestRenderer.act(async () => {
-    renderer.root.findByProps({ testID: 'custom-app-dialog' });
     const back = renderer.root.findAll(
       node => typeof node.props.onRequestClose === 'function',
     );
-    if (back.length > 0) {
-      back[0].props.onRequestClose();
-    }
+    back[0].props.onRequestClose();
   });
 
   await ReactTestRenderer.act(async () => {
@@ -153,6 +145,43 @@ test('select launches the built-in app and hold Select can replace or clear it',
   expect(mockedLaunch).toHaveBeenLastCalledWith(
     'com.google.android.youtube.tv',
   );
+});
+
+test('the select release that opens the dialog does not choose or dismiss it', async () => {
+  const renderer = renderStream();
+  await flush();
+
+  await ReactTestRenderer.act(async () => {
+    pressableFor(renderer, 'YouTube').props.onLongPress();
+  });
+  await flush();
+  const dialog = renderer.root.findByProps({ testID: 'custom-app-dialog' });
+  expect(dialog).toBeTruthy();
+  expect(
+    renderer.root.findByProps({ testID: 'custom-app-com.netflix.ninja' }).props
+      .onPress,
+  ).toBeUndefined();
+  expect(
+    renderer.root.findAllByProps({ testID: 'custom-app-select-guard' }),
+  ).toHaveLength(0);
+
+  expect(mockedSet).not.toHaveBeenCalled();
+  expect(renderer.root.findByProps({ testID: 'custom-app-dialog' })).toBeTruthy();
+
+  await releaseOpeningSelect(renderer);
+  const chooseNetflix = () =>
+    renderer.root
+      .findByProps({ testID: 'custom-app-com.netflix.ninja' })
+      .props.onPress();
+
+  await ReactTestRenderer.act(async () => {
+    chooseNetflix();
+  });
+  await flush();
+  expect(mockedSet).toHaveBeenCalledWith('youtube', 'com.netflix.ninja');
+  expect(
+    renderer.root.findAllByProps({ testID: 'custom-app-dialog' }),
+  ).toHaveLength(0);
 });
 
 test('Bonkflix select launches Netflix by default', async () => {
