@@ -1,5 +1,6 @@
 import { ViewStyle } from 'react-native';
 import bonkflixBg from '../assets/bonkflixbg.png';
+import dogetubeBg from '../assets/dogetubebg.png';
 
 type GradientLayer = Extract<
   NonNullable<ViewStyle['experimental_backgroundImage']>,
@@ -14,7 +15,7 @@ type GradientStop = GradientLayer[number] extends { colorStops: infer Stops }
 
 export type MenuBackground = {
   image: number;
-  overlay: GradientLayer;
+  overlay: GradientLayer | null;
 };
 
 function stop(position: string, alpha: string): GradientStop {
@@ -78,6 +79,10 @@ export const bonkflixScrim: GradientLayer = [
 export const menuBackgrounds: Readonly<Record<string, MenuBackground>> = {
   bonkflix: {
     image: bonkflixBg,
+    overlay: bonkflixScrim,
+  },
+  dogetube: {
+    image: dogetubeBg,
     overlay: bonkflixScrim,
   },
 };

@@ -67,8 +67,8 @@ export const streamMenuItems: StreamMenuItem[] = [
     customAppId: null,
   },
   {
-    id: 'youtube',
-    title: 'YouTube',
+    id: 'dogetube',
+    title: 'DogeTube',
     screen: null,
     icon: null,
     appId: 'com.google.android.youtube.tv',
