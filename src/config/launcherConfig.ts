@@ -7,7 +7,7 @@ export const launcherConfig: LauncherConfig = {
   hotelBrand: 'STAY',
   logo: cobrandedLogo,
   welcomeKicker: 'BIG SPENDER MEMBER',
-  welcomeMessage: 'Good Evening, Ethan',
+  welcomeMessage: 'Good Evening, {guestName}',
   weather: {
     summary: 'Clear',
     fahrenheit: 72,
@@ -38,13 +38,29 @@ export const launcherConfig: LauncherConfig = {
     { label: 'Contact', value: 'front.desk@example.com' },
   ],
   settings: [
-    { label: 'Hotel Logo', value: 'Hotel Launcher' },
-    { label: 'Guest Name', value: 'Ethan' },
-    { label: 'Discover Channel', value: 'https://www.youtube.com/@username' },
-    { label: 'Autoplay', value: 'On' },
-    { label: 'Weather', value: 'Placeholder' },
+    { id: 'guestName', label: 'Guest Name', value: 'Ethan' },
+    {
+      id: 'discoverChannel',
+      label: 'Discover Channel',
+      value: 'https://www.youtube.com/@username',
+    },
+    { id: 'weather', label: 'Weather', value: 'Placeholder' },
   ],
 };
+
+const GUEST_TOKEN = '{guestName}';
+
+/** Welcome line with the persisted Guest Name filled into `{guestName}`. */
+export function welcomeMessageForGuest(guestName: string): string {
+  const name = guestName.trim();
+  if (name === '') {
+    return launcherConfig.welcomeMessage
+      .replace(`, ${GUEST_TOKEN}`, '')
+      .replace(GUEST_TOKEN, '')
+      .trim();
+  }
+  return launcherConfig.welcomeMessage.replaceAll(GUEST_TOKEN, name);
+}
 
 export const menuItems: MenuItem[] = [
   { id: 'discover', title: 'Discover', screen: 'Discover', icon: 'home' },

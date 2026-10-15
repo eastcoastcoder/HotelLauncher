@@ -1,6 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { Image, LayoutChangeEvent, StyleSheet, Text, View } from 'react-native';
-import { launcherConfig } from '../config/launcherConfig';
+import {
+  launcherConfig,
+  welcomeMessageForGuest,
+} from '../config/launcherConfig';
+import { useLauncherSettings } from '../context/LauncherSettingsContext';
+import { imageUriForPath } from '../services/hotelLogo';
 import { colors } from '../theme/colors';
 import { type } from '../theme/typography';
 
@@ -18,13 +23,22 @@ function formatClock(date: Date) {
 export function Header() {
   const [now, setNow] = useState(() => new Date());
   const [brandWidth, setBrandWidth] = useState(0);
+  const [logoFailed, setLogoFailed] = useState(false);
+  const { values } = useLauncherSettings();
 
   useEffect(() => {
     const timer = setInterval(() => setNow(new Date()), 1000);
     return () => clearInterval(timer);
   }, []);
 
+  useEffect(() => {
+    setLogoFailed(false);
+  }, [values.logoPath]);
+
   const { weather } = launcherConfig;
+  const welcomeMessage = welcomeMessageForGuest(values.guestName);
+  const customLogo = logoFailed ? null : values.logoPath;
+
   const logo = launcherConfig.logo;
   const resolved = Image.resolveAssetSource(logo);
   const sourceWidth =
@@ -51,29 +65,39 @@ export function Header() {
   return (
     <View style={styles.row}>
       <View style={styles.brand} onLayout={onBrandLayout}>
-        <View
-          style={[styles.logoFrame, { width: frameWidth, height: frameHeight }]}
-        >
+        {customLogo != null ? (
           <Image
-            source={logo}
-            accessibilityLabel="DogeBonk and CheemsYard"
-            resizeMode="cover"
-            style={[
-              styles.logo,
-              {
-                width: imageWidth,
-                height: imageHeight,
-                left: -imageWidth * (ART.x / sourceWidth),
-                top: -imageHeight * (ART.y / sourceHeight),
-              },
-            ]}
+            source={{ uri: imageUriForPath(customLogo) }}
+            accessibilityLabel="Hotel logo"
+            resizeMode="contain"
+            onError={() => setLogoFailed(true)}
+            style={{ width: brandWidth, height: LOGO_HEIGHT }}
           />
-        </View>
+        ) : (
+          <View
+            style={[styles.logoFrame, { width: frameWidth, height: frameHeight }]}
+          >
+            <Image
+              source={logo}
+              accessibilityLabel="DogeBonk and CheemsYard"
+              resizeMode="cover"
+              style={[
+                styles.logo,
+                {
+                  width: imageWidth,
+                  height: imageHeight,
+                  left: -imageWidth * (ART.x / sourceWidth),
+                  top: -imageHeight * (ART.y / sourceHeight),
+                },
+              ]}
+            />
+          </View>
+        )}
       </View>
 
       <View style={styles.welcome}>
         <Text style={styles.kicker}>{launcherConfig.welcomeKicker}</Text>
-        <Text style={styles.welcomeText}>{launcherConfig.welcomeMessage}</Text>
+        <Text style={styles.welcomeText}>{welcomeMessage}</Text>
       </View>
 
       <View style={styles.meta}>

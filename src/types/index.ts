@@ -34,11 +34,20 @@ export interface HotelFact {
   label: string;
   value: string;
 }
+
+export type SettingId = 'guestName' | 'discoverChannel' | 'weather';
+
+export interface SettingField {
+  id: SettingId;
+  label: string;
+  value: string;
+}
 export interface LauncherConfig {
   hotelName: string;
   hotelBrand: string;
   logo: number;
   welcomeKicker: string;
+  /** `{guestName}` is filled from the Guest Name setting. */
   welcomeMessage: string;
   weather: {
     summary: string;
@@ -60,5 +69,5 @@ export interface LauncherConfig {
     image: number;
   };
   hotelInfo: HotelFact[];
-  settings: { label: string; value: string }[];
+  settings: SettingField[];
 }
