@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import ReactTestRenderer from 'react-test-renderer';
 import { Navigation } from '../src/components/Navigation';
 import { BackgroundProvider } from '../src/context/BackgroundContext';

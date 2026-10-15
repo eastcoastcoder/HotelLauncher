@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { BackHandler, StyleSheet, View } from 'react-native';
 import { Header } from '../components/Header';
 import { LaunchNotice } from '../components/LaunchNotice';
@@ -19,7 +19,7 @@ export function TVApp() {
   const showChrome = !videoFullscreen;
   const screenBackground = useScreenBackground();
 
-  React.useEffect(() => {
+  useEffect(() => {
     const subscription = BackHandler.addEventListener(
       'hardwareBackPress',
       () => {

@@ -1,4 +1,11 @@
-import React, { useCallback, useContext, useMemo, useState } from 'react';
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useMemo,
+  useState,
+  type ReactNode,
+} from 'react';
 import { ScreenId } from '../types';
 
 type HandleMap = Partial<Record<ScreenId, number | null>>;
@@ -12,7 +19,7 @@ type NavReturnState = {
   setEntry: (screen: ScreenId, handle: number | null) => void;
 };
 
-const NavReturnContext = React.createContext<NavReturnState | null>(null);
+const NavReturnContext = createContext<NavReturnState | null>(null);
 
 function remember(
   current: HandleMap,
@@ -29,7 +36,7 @@ function remember(
  * Links a screen menu row to the submenu it opened.
  * Left from the submenu returns to that row. Right from that row enters the submenu.
  */
-export function NavReturnProvider({ children }: { children: React.ReactNode }) {
+export function NavReturnProvider({ children }: { children: ReactNode }) {
   const [mains, setMains] = useState<HandleMap>({});
   const [entries, setEntries] = useState<HandleMap>({});
 

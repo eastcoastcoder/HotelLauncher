@@ -1,4 +1,3 @@
-import React from 'react';
 import { Image, StyleSheet, useWindowDimensions, View } from 'react-native';
 import { MenuBackground } from '../theme/screenBackground';
 

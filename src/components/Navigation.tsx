@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { findNodeHandle, StyleSheet, Text, View } from 'react-native';
 import { useBackground } from '../context/BackgroundContext';
 import { useNavReturn } from '../navigation/NavReturn';

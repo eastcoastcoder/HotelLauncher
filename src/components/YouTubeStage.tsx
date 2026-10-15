@@ -1,4 +1,10 @@
-import React, { useCallback, useEffect, useMemo, useRef } from 'react';
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  type ComponentRef,
+} from 'react';
 import { StyleSheet, View } from 'react-native';
 import { WebView } from 'react-native-webview';
 import { colors } from '../theme/colors';
@@ -22,7 +28,7 @@ export function YouTubeStage({
   onFatal,
 }: YouTubeStageProps) {
   const html = useMemo(() => buildYouTubeStageHtml(videoIds), [videoIds]);
-  const webRef = useRef<React.ComponentRef<typeof WebView>>(null);
+  const webRef = useRef<ComponentRef<typeof WebView>>(null);
   const mutedRef = useRef(muted);
   mutedRef.current = muted;
 

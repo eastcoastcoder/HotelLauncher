@@ -1,4 +1,3 @@
-import React from 'react';
 import ReactTestRenderer from 'react-test-renderer';
 import ReactNativeBlobUtil from 'react-native-blob-util';
 import App from '../App';

@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { CustomAppDialog } from '../components/CustomAppDialog';
 import { Navigation } from '../components/Navigation';
 import { Panel } from '../components/Panel';

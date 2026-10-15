@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { forwardRef, useState, type ReactNode } from 'react';
 import {
   Pressable,
   StyleProp,
@@ -9,7 +9,7 @@ import {
 import { colors } from '../theme/colors';
 
 type Props = {
-  children: React.ReactNode;
+  children: ReactNode;
   onPress?: () => void;
   onPressOut?: () => void;
   onLongPress?: () => void;
@@ -27,7 +27,7 @@ type Props = {
   onLayout?: () => void;
 };
 
-export const Focusable = React.forwardRef<View, Props>(function FocusableControl(
+export const Focusable = forwardRef<View, Props>(function FocusableControl(
   {
     children,
     onPress,

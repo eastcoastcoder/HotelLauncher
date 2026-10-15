@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { Component, useState, type ReactNode } from 'react';
 import ReactTestRenderer from 'react-test-renderer';
 import { Text } from 'react-native';
 import { Navigation } from '../src/components/Navigation';
@@ -229,8 +229,8 @@ test('useBackground requires the provider', async () => {
     return null;
   }
 
-  class Boundary extends React.Component<
-    { children: React.ReactNode },
+  class Boundary extends Component<
+    { children: ReactNode },
     { message: string | null }
   > {
     state = { message: null };

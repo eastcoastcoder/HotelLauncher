@@ -2,7 +2,6 @@
  * @format
  */
 
-import React from 'react';
 import ReactTestRenderer from 'react-test-renderer';
 import { Image } from 'react-native';
 import App from '../App';

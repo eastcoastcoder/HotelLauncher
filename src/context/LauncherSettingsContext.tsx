@@ -1,10 +1,12 @@
-import React, {
+import {
+  createContext,
   useCallback,
   useContext,
   useEffect,
   useMemo,
   useRef,
   useState,
+  type ReactNode,
 } from 'react';
 import {
   defaultLauncherSettings,
@@ -25,12 +27,12 @@ type LauncherSettingsController = {
 };
 
 const LauncherSettingsContext =
-  React.createContext<LauncherSettingsController | null>(null);
+  createContext<LauncherSettingsController | null>(null);
 
 export function LauncherSettingsProvider({
   children,
 }: {
-  children: React.ReactNode;
+  children: ReactNode;
 }) {
   const [values, setValues] = useState(defaultLauncherSettings);
   const edited = useRef(new Set<EditedSetting>());

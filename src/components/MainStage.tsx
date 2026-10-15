@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { StyleSheet, Text, TVFocusGuideView, View } from 'react-native';
 import { launcherConfig } from '../config/launcherConfig';
 import { loadMainStageMediaConfig } from '../config/mainStageMedia';

@@ -1,9 +1,11 @@
-import React, {
+import {
+  createContext,
   useCallback,
   useContext,
   useMemo,
   useRef,
   useState,
+  type ReactNode,
 } from 'react';
 import {
   MenuBackground,
@@ -24,10 +26,10 @@ export type BackgroundController = {
   releaseMenuItems: (menuItemIds: ReadonlySet<string>) => void;
 };
 
-const BackgroundContext = React.createContext<BackgroundController | null>(null);
+const BackgroundContext = createContext<BackgroundController | null>(null);
 
 type BackgroundProviderProps = {
-  children: React.ReactNode;
+  children: ReactNode;
   backgrounds?: Readonly<Record<string, MenuBackground>>;
 };
 
