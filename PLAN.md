@@ -52,6 +52,7 @@ D-pad only: Up, Down, Left, Right, Select, Back. Focus must be obvious. Back ret
 Installed-app discovery (PackageManager bridge), launch external apps, persistent settings, network/HLS video, promo rotation, QR, weather, screensaver.
 
 - [x] Stream rows launch their Android `appId`. Hold Select opens an installed-app picker, saves `customAppId`, and Clear restores the built-in app.
+- [ ] Stream can add extra app rows, hide a default row, and restore hidden defaults one at a time. Code is in the tree. The A90K remote check is not done. See Stream rows the guest can change.
 
 #### Hold Select still closes the custom-app dialog
 
@@ -82,6 +83,20 @@ Jest covers attempt 3 (`tsc`, eslint, `__tests__/streamScreen.test.tsx`). The A9
 4. **Attempt 3 still closed on the A90K, and the last thing on screen was "Loading installed apps."** That string is rendered only while `listInstalledApps` has not resolved. No app row exists yet, so the close is not `onChoose`. The crash buffer has no `com.hotellauncher` tombstone (other processes: `statementservice`, `com.sony.dtv.interactivetvutil`, and Sony `kyildm` key-log HAL). The main log is flooded by `GPUAUX`, so a JS exception can rotate out. Checked 2026-10-12 around 20:53, process still the one that logged `Running "HotelLauncher"` at 20:51.
 
    **Current code.** The picker is an overlay in the Stream panel, not a `Modal`. A `Modal` opens a new window while Select is still down, so the key-up never reaches the row that already handled the long press. Rows and Clear stay non-pressable until that row's `onPressOut`. Until then `Navigation` stays `enabled`, so focus does not move into the overlay. `listInstalledApps` catches `Throwable` for the whole query and for each package's `loadLabel`. A bad package is logged as `InstalledApps: Skipped <package>` and kept with its package name as the label. One package can no longer fail the whole list. A native crash inside `PackageManager` would still kill the process; Java `try/catch` does not stop that. The native change is in the APK, so Metro reload alone does not install it.
+
+#### Stream rows the guest can change
+
+The six rows in `streamMenuItems` stay the defaults. Hold Select still assigns `customAppId` for that row, and Clear still drops the override. That native map stays `stream_custom_apps`.
+
+- **Add app** is always the last Stream row. Select opens the installed-app list. Choosing an app appends a row named with that app's label. Select on the new row launches that package. The same package is not added twice. Hold Select on an added row can change the package or remove the row.
+- **Hide** is on the hold-Select dialog for a default row. A hidden default leaves the list. Its saved `customAppId` stays, so restoring the row brings the override back.
+- **Hidden apps** is a row above Add app, and only while at least one default is hidden. Select lists those defaults by their built-in titles. Select on one puts that row back. The others stay hidden. When none are hidden, the row goes away.
+
+Order: visible defaults, then added apps, then Hidden apps, then Add app. The Stream list scrolls when it is taller than the nav column. The guest's added rows and hidden defaults are stored in AsyncStorage under `stream_layout`, separate from `stream_custom_apps`, so a new key is not read as a package override.
+
+Stopped 2026-10-14. This is implemented in `src/screens/Stream.tsx`, `src/services/streamLayout.ts`, `src/services/streamLaunch.ts` (`buildStreamMenu`), `src/components/CustomAppDialog.tsx` (Hide on a default, Remove on an added row), `src/components/HiddenAppsDialog.tsx`, and `Navigation` `scrollable` for Stream only. Jest covered add, hide, restore one default while leaving another hidden, remove, and a failed save (`__tests__/streamScreen.test.tsx`, `streamLaunch.test.ts`, `streamLayout.test.ts`). Eslint passed on those files. `npx tsc --noEmit` still fails on the older `ScreenBackground` overlay nullability, not on these files.
+
+Still open: on the A90K remote, hold Select, choose Hide, then open Hidden apps and restore one default at a time. Also confirm Add app, Remove, and that the scrolled list keeps D-pad focus. Do not check this item off until that remote pass.
 
 Main stage streams recent uploads from a YouTube channel. Copy `src/config/mainStage.example.json` to `src/config/mainStage.local.json` (gitignored) and set:
 
