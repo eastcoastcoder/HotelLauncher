@@ -38,10 +38,7 @@ function Readout() {
   );
 }
 
-function textOf(
-  renderer: ReactTestRenderer.ReactTestRenderer,
-  testID: string,
-) {
+function textOf(renderer: ReactTestRenderer.ReactTestRenderer, testID: string) {
   return renderer.root.findByProps({ testID }).props.children;
 }
 
@@ -92,7 +89,7 @@ async function flushFrame() {
   });
 }
 
-test('Bonkflix hover shows its background and the next row restores the default', async () => {
+test('menu hover shows that row background and a row without one restores the default', async () => {
   let renderer: ReactTestRenderer.ReactTestRenderer;
   await ReactTestRenderer.act(() => {
     renderer = ReactTestRenderer.create(<Harness />);
@@ -110,13 +107,28 @@ test('Bonkflix hover shows its background and the next row restores the default'
 
   await ReactTestRenderer.act(() => {
     controlsFor(renderer!, 'Bonkflix').focus.props.onBlur();
-    controlsFor(renderer!, 'YouTube').focus.props.onFocus();
+    controlsFor(renderer!, 'DogeTube').focus.props.onFocus();
   });
-  expect(textOf(renderer!, 'background')).toBe('default');
-  expect(textOf(renderer!, 'hovered')).toBe('youtube');
+  expect(textOf(renderer!, 'background')).toBe(
+    String(menuBackgrounds.dogetube.image),
+  );
+  expect(textOf(renderer!, 'hovered')).toBe('dogetube');
 
   await flushFrame();
-  expect(textOf(renderer!, 'hovered')).toBe('youtube');
+  expect(textOf(renderer!, 'hovered')).toBe('dogetube');
+  expect(textOf(renderer!, 'background')).toBe(
+    String(menuBackgrounds.dogetube.image),
+  );
+
+  await ReactTestRenderer.act(() => {
+    controlsFor(renderer!, 'DogeTube').focus.props.onBlur();
+    controlsFor(renderer!, 'Amazon Prime Video').focus.props.onFocus();
+  });
+  expect(textOf(renderer!, 'background')).toBe('default');
+  expect(textOf(renderer!, 'hovered')).toBe('prime');
+
+  await flushFrame();
+  expect(textOf(renderer!, 'hovered')).toBe('prime');
   expect(textOf(renderer!, 'background')).toBe('default');
 });
 

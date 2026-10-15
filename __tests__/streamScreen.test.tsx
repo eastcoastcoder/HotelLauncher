@@ -16,8 +16,8 @@ import {
 
 jest.mock('../src/services/installedApps', () => ({
   listInstalledApps: jest.fn(async () => [
-    { appId: 'com.netflix.ninja', label: 'Netflix' },
-    { appId: 'com.google.android.youtube.tv', label: 'YouTube' },
+    { appId: 'com.netflix.ninja', label: 'BonkFlix' },
+    { appId: 'com.google.android.youtube.tv', label: 'DogeTube' },
   ]),
   launchApp: jest.fn(async () => true),
   getCustomAppIds: jest.fn(async () => ({})),
@@ -41,7 +41,10 @@ function pressableFor(
 ) {
   const text = renderer.root.findAllByType(Text).find(node => {
     const children = node.props.children;
-    return children === title || (Array.isArray(children) && children.includes(title));
+    return (
+      children === title ||
+      (Array.isArray(children) && children.includes(title))
+    );
   });
   if (text == null) {
     throw new Error(`No label for ${title}`);
@@ -67,7 +70,7 @@ async function releaseOpeningSelect(
   renderer: ReactTestRenderer.ReactTestRenderer,
 ) {
   await ReactTestRenderer.act(async () => {
-    pressableFor(renderer, 'YouTube').props.onPressOut();
+    pressableFor(renderer, 'DogeTube').props.onPressOut();
   });
 }
 
@@ -92,17 +95,19 @@ test('select launches the built-in app and hold Select can replace or clear it',
   expect(mockedGet).toHaveBeenCalled();
 
   await ReactTestRenderer.act(async () => {
-    pressableFor(renderer, 'YouTube').props.onPress();
+    pressableFor(renderer, 'DogeTube').props.onPress();
   });
   await flush();
   expect(mockedLaunch).toHaveBeenCalledWith('com.google.android.youtube.tv');
 
   await ReactTestRenderer.act(async () => {
-    pressableFor(renderer, 'YouTube').props.onLongPress();
+    pressableFor(renderer, 'DogeTube').props.onLongPress();
   });
   await flush();
   expect(mockedList).toHaveBeenCalled();
-  expect(renderer.root.findByProps({ testID: 'custom-app-dialog' })).toBeTruthy();
+  expect(
+    renderer.root.findByProps({ testID: 'custom-app-dialog' }),
+  ).toBeTruthy();
   await releaseOpeningSelect(renderer);
 
   await ReactTestRenderer.act(async () => {
@@ -111,16 +116,16 @@ test('select launches the built-in app and hold Select can replace or clear it',
       .props.onPress();
   });
   await flush();
-  expect(mockedSet).toHaveBeenCalledWith('youtube', 'com.netflix.ninja');
+  expect(mockedSet).toHaveBeenCalledWith('dogetube', 'com.netflix.ninja');
 
   await ReactTestRenderer.act(async () => {
-    pressableFor(renderer, 'YouTube').props.onPress();
+    pressableFor(renderer, 'DogeTube').props.onPress();
   });
   await flush();
   expect(mockedLaunch).toHaveBeenLastCalledWith('com.netflix.ninja');
 
   await ReactTestRenderer.act(async () => {
-    pressableFor(renderer, 'YouTube').props.onLongPress();
+    pressableFor(renderer, 'DogeTube').props.onLongPress();
   });
   await flush();
   await releaseOpeningSelect(renderer);
@@ -128,8 +133,10 @@ test('select launches the built-in app and hold Select can replace or clear it',
     renderer.root.findByProps({ testID: 'custom-app-clear' }).props.onPress();
   });
   await flush();
-  expect(mockedClear).toHaveBeenCalledWith('youtube');
-  expect(renderer.root.findByProps({ testID: 'custom-app-dialog' })).toBeTruthy();
+  expect(mockedClear).toHaveBeenCalledWith('dogetube');
+  expect(
+    renderer.root.findByProps({ testID: 'custom-app-dialog' }),
+  ).toBeTruthy();
 
   await ReactTestRenderer.act(async () => {
     const back = renderer.root.findAll(
@@ -139,7 +146,7 @@ test('select launches the built-in app and hold Select can replace or clear it',
   });
 
   await ReactTestRenderer.act(async () => {
-    pressableFor(renderer, 'YouTube').props.onPress();
+    pressableFor(renderer, 'DogeTube').props.onPress();
   });
   await flush();
   expect(mockedLaunch).toHaveBeenLastCalledWith(
@@ -152,7 +159,7 @@ test('the select release that opens the dialog does not choose or dismiss it', a
   await flush();
 
   await ReactTestRenderer.act(async () => {
-    pressableFor(renderer, 'YouTube').props.onLongPress();
+    pressableFor(renderer, 'DogeTube').props.onLongPress();
   });
   await flush();
   const dialog = renderer.root.findByProps({ testID: 'custom-app-dialog' });
@@ -166,7 +173,9 @@ test('the select release that opens the dialog does not choose or dismiss it', a
   ).toHaveLength(0);
 
   expect(mockedSet).not.toHaveBeenCalled();
-  expect(renderer.root.findByProps({ testID: 'custom-app-dialog' })).toBeTruthy();
+  expect(
+    renderer.root.findByProps({ testID: 'custom-app-dialog' }),
+  ).toBeTruthy();
 
   await releaseOpeningSelect(renderer);
   const chooseNetflix = () =>
@@ -178,7 +187,7 @@ test('the select release that opens the dialog does not choose or dismiss it', a
     chooseNetflix();
   });
   await flush();
-  expect(mockedSet).toHaveBeenCalledWith('youtube', 'com.netflix.ninja');
+  expect(mockedSet).toHaveBeenCalledWith('dogetube', 'com.netflix.ninja');
   expect(
     renderer.root.findAllByProps({ testID: 'custom-app-dialog' }),
   ).toHaveLength(0);
@@ -201,13 +210,13 @@ test('a failed launch is drawn over the promo banner', async () => {
   await flush();
 
   await ReactTestRenderer.act(async () => {
-    pressableFor(renderer, 'YouTube').props.onPress();
+    pressableFor(renderer, 'DogeTube').props.onPress();
   });
   await flush();
 
   const notice = renderer.root.findByProps({ testID: 'stream-launch-notice' });
   expect(notice.props.children).toBe(
-    'YouTube could not open com.google.android.youtube.tv. Hold Select to pick an installed app.',
+    'DogeTube could not open com.google.android.youtube.tv. Hold Select to pick an installed app.',
   );
   expect(StyleSheet.flatten(notice.props.style)).toMatchObject({
     color: '#FFFFFF',

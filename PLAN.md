@@ -94,6 +94,51 @@ Playback streams one video at a time in a WebView, then advances. It does not do
 
 Tuner, HDMI input, volume, power, boot, real Home replacement. Only if the A90K allows it. Do not block Phase 1 on these.
 
+- [ ] Watch TV lists channels TVirl published into Android TV live channels, and Select opens the system TV app on that channel. See Watch TV — TVirl live channels.
+
+#### Watch TV — TVirl live channels
+
+`src/screens/WatchTV.tsx` should list channels the guest already added with **TVirl** and play the chosen one through Android TV's live-channel stack. Do not assume the Sony tuner or an HDMI input. TVirl does not ship streams. It is a TV input service that publishes the user's M3U playlist into the system TV provider. Package `by.stari4ek.tvirl`. It is closed source and not a player.
+
+Playback belongs to the system TV app. That app creates a `TvInputManager` session and asks TVirl to tune. On Shield and Chromecast the app is Live Channels (`com.google.android.tv`). Sony ships its own TV app, and TVirl's guide UI on Sony is that app, not Live Channels. A BRAVIA Programme Guide activity observed in the field is `com.sony.dtv.tvx` / `com.sony.dtv.tvx.MainActivity`. Confirm the package on this A90K before hard-coding it. The system TV app is often hidden until a TV input such as TVirl is installed. TVirl's own setup expects that app to have been opened once.
+
+Planned behavior, after the on-device check below:
+
+1. Detect TVirl with `TvInputManager.getTvInputList()`. A normal app can see input id, label, and whether the input is passthrough. Match package `by.stari4ek.tvirl`. This call does not return channels.
+2. Read that input's rows from `content://android.media.tv/channel` (`TvContract.Channels`, authority `android.media.tv`), filtered by `input_id`. Columns: `_id`, `display_name`, `display_number`, `browsable`. Show browsable channels on Watch TV, ordered by display number.
+3. Select starts `ACTION_VIEW` on `TvContract.buildChannelUri(channelId)` with `FLAG_ACTIVITY_NEW_TASK`. The system TV app tunes that channel. HotelLauncher does not decode the stream.
+4. If TVirl is not installed, say so and offer the Play Store page for `by.stari4ek.tvirl`. If the input exists and the channel query is empty or denied, say the channels cannot be listed here and offer to open the system TV app with no channel id.
+
+On-device check before any bridge. The shell is privileged and the app is not, so these commands can succeed when the app cannot:
+
+- `adb shell dumpsys tv_input` and look for an input id that starts with `by.stari4ek.tvirl/`.
+- `adb shell content query --uri content://android.media.tv/channel --projection _id:display_name:display_number:input_id:package_name:browsable`
+- `adb shell cmd package query-activities -a android.intent.action.VIEW -d content://android.media.tv/channel/1` to see which activity handles a channel URI.
+
+A shell query is not proof that `com.hotellauncher` can list channels. Repeat the query from the app and record the result.
+
+##### Quirks
+
+- **Package lock.** Each TV-provider row is owned by the package that wrote it. A third-party app can read and write only its own rows. Reading every channel needs `ACCESS_ALL_EPG_DATA` or `READ_TV_LISTINGS`. Both are signature-or-privileged. A sideloaded HotelLauncher should expect an empty cursor or a security error. `COLUMN_SEARCHABLE` says other apps may read searchable rows only when they hold that permission. It is not a public grant.
+- **Do not embed `TvView` first.** `TvInputManager.createSession` is not limited to the input's own package. The system binds the input. The database permission is the blocker, not session creation. Embedding `android.media.tv.TvView` in React Native is still the wrong first step: it needs a native view, a channel URI the app may not be allowed to read, and a check that TVirl accepts a tune from this app while Sony's TV app is installed. AOSP also says a third-party TV input may show its own channels or a manufacturer passthrough input such as HDMI, and may not show another app's IPTV input. That rule is about one input relaying another. It is a reason not to add HotelLauncher's own `TvInputService` to rebroadcast TVirl.
+- **Stream URLs are private.** The playable URL, headers, and DRM fields sit in `COLUMN_INTERNAL_PROVIDER_DATA`, an opaque blob TVirl owns. Do not parse it.
+- **New channels stay hidden.** Android TV leaves channels added after the first playlist install non-browsable. On Sony the guest enables them in system channel settings. `COLUMN_BROWSABLE` is read-only for a normal app. Watch TV should list browsable rows only, and say when TVirl is installed but nothing is browsable.
+- **No M3U groups on Sony.** Grouping is per program, and only via the canonical uppercase genre list. It requires EPG programs. Live Channels can show genres. Sony's TV app does not. Watch TV lists channels, not playlist categories.
+- **Playback features stay inside TVirl's session.** Custom `User-Agent` and per-channel HTTP headers, Widevine, PlayReady, ClearKey, UDP multicast, RTMP, HLS, DASH, and catch-up (time-shift and a remote archive TVirl exposes as DVR) are implemented by TVirl. An in-app player drops them. Tunneled playback is a TVirl setting and matters on Sony. Handoff keeps it.
+- **The list can be stale.** Playlist and EPG refresh is a TVirl Plus feature. Titles are whatever encoding TVirl stored. A bad encoding shows garbage names. That is fixed in TVirl's playlist settings, not in this app.
+- **TIF is an OEM-shaped API.** Google's guide says the TV Input Framework is for OEMs and documents it for API 21 through 25. The provider is still on current Android TV, which is why TVirl works on Sony. Do not add a HotelLauncher `TvInputService` unless the channel query is denied and handoff is not enough.
+- **Logos use the same wall.** `TvContract.buildChannelLogoUri` points at the TV provider. Treat a failed logo load as normal.
+- **Opening TVirl opens setup.** Its launcher activity is not a channel player.
+
+##### Alternatives when the A90K denies the channel query
+
+1. **Handoff only.** Watch TV detects the TVirl input and opens Sony's TV app, or Live Channels if that is the handler, with no channel id. The guest uses that app's guide. Smallest change. No channel list inside HotelLauncher.
+2. **The same M3U in launcher config, played here later.** This ignores the channels TVirl already added. It also misses DRM, multicast, custom headers, and catch-up. This plan already blocks `react-native-video` until a `react-native-tvos`-compatible ExoPlayer package is verified.
+3. **HotelLauncher as its own TV input** that imports the same M3U, then reads its own rows. That duplicates TVirl. Skip it unless handoff fails.
+4. **Platform signature or install on the system partition** so the app can hold `ACCESS_ALL_EPG_DATA`. Out of scope for a sideload.
+
+This item is done when TVirl is installed and at least one channel is browsable, and either Watch TV lists those channels and Select opens the system TV app on the chosen channel, or the A90K denies the query and Watch TV uses the handoff-only fallback. The Sony tuner and HDMI stay separate.
+
 ### Phase 5 — Hotel mode
 
 Locked admin config (branding, video, promos, hotel info, menu) without source edits.

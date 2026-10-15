@@ -5,6 +5,7 @@ import {
   StyleSheet,
   Text,
   TextInput,
+  TVFocusGuideView,
   View,
 } from 'react-native';
 import { Focusable } from '../components/Focusable';
@@ -55,64 +56,67 @@ export function Settings({}: { screen?: ScreenId }) {
 
   return (
     <Panel title="Settings">
-      <View style={styles.field}>
-        <Text style={styles.label}>Hotel Logo</Text>
-        <View style={styles.logoRow}>
-          {values.logoPath != null ? (
-            <Image
-              source={{ uri: imageUriForPath(values.logoPath) }}
-              accessibilityLabel="Custom hotel logo"
-              resizeMode="contain"
-              style={styles.preview}
-            />
-          ) : (
-            <View style={styles.preview}>
-              <Text style={styles.previewLabel}>Built-in</Text>
-            </View>
-          )}
-          <View style={styles.logoActions}>
-            <Focusable
-              onPress={() => {
-                onPickLogo().catch(() => undefined);
-              }}
-              testID="setting-hotel-logo"
-              style={styles.action}
-            >
-              <Text style={styles.actionText}>
-                {picking ? 'Opening gallery…' : 'Choose image'}
-              </Text>
-            </Focusable>
+      {/* The caret is the focus rect, so an untrapped search prefers the sidebar. */}
+      <TVFocusGuideView trapFocusUp trapFocusDown>
+        <View style={styles.field}>
+          <Text style={styles.label}>Hotel Logo</Text>
+          <View style={styles.logoRow}>
             {values.logoPath != null ? (
+              <Image
+                source={{ uri: imageUriForPath(values.logoPath) }}
+                accessibilityLabel="Custom hotel logo"
+                resizeMode="contain"
+                style={styles.preview}
+              />
+            ) : (
+              <View style={styles.preview}>
+                <Text style={styles.previewLabel}>Built-in</Text>
+              </View>
+            )}
+            <View style={styles.logoActions}>
               <Focusable
                 onPress={() => {
-                  onClearLogo().catch(() => undefined);
+                  onPickLogo().catch(() => undefined);
                 }}
-                testID="setting-hotel-logo-clear"
+                testID="setting-hotel-logo"
                 style={styles.action}
               >
-                <Text style={styles.actionText}>Use built-in logo</Text>
+                <Text style={styles.actionText}>
+                  {picking ? 'Opening gallery…' : 'Choose image'}
+                </Text>
               </Focusable>
-            ) : null}
+              {values.logoPath != null ? (
+                <Focusable
+                  onPress={() => {
+                    onClearLogo().catch(() => undefined);
+                  }}
+                  testID="setting-hotel-logo-clear"
+                  style={styles.action}
+                >
+                  <Text style={styles.actionText}>Use built-in logo</Text>
+                </Focusable>
+              ) : null}
+            </View>
           </View>
+          {logoError != null ? (
+            <Text style={styles.error}>{logoError}</Text>
+          ) : null}
         </View>
-        {logoError != null ? (
-          <Text style={styles.error}>{logoError}</Text>
-        ) : null}
-      </View>
-      {launcherConfig.settings.map(item => {
-        const mode = inputMode(item.id);
-        return (
-          <SettingInput
-            key={item.id}
-            label={item.label}
-            value={values[item.id]}
-            onChangeText={next => setValue(item.id, next)}
-            testID={`setting-${item.id}`}
-            autoCapitalize={mode.autoCapitalize}
-            keyboardType={mode.keyboardType}
-          />
-        );
-      })}
+        {launcherConfig.settings.map(item => {
+          const mode = inputMode(item.id);
+          return (
+            <SettingInput
+              key={item.id}
+              label={item.label}
+              value={values[item.id]}
+              onChangeText={next => setValue(item.id, next)}
+              testID={`setting-${item.id}`}
+              autoCapitalize={mode.autoCapitalize}
+              keyboardType={mode.keyboardType}
+            />
+          );
+        })}
+      </TVFocusGuideView>
     </Panel>
   );
 }

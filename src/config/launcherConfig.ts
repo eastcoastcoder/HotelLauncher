@@ -38,7 +38,7 @@ export const launcherConfig: LauncherConfig = {
     { label: 'Contact', value: 'front.desk@example.com' },
   ],
   settings: [
-    { id: 'guestName', label: 'Guest Name', value: 'Ethan' },
+    { id: 'guestName', label: 'Guest Name', value: 'Guest' },
     {
       id: 'discoverChannel',
       label: 'Discover Channel',

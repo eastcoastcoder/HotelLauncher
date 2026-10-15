@@ -2,7 +2,10 @@ import React from 'react';
 import ReactTestRenderer from 'react-test-renderer';
 import ReactNativeBlobUtil from 'react-native-blob-util';
 import App from '../App';
-import { launcherConfig, welcomeMessageForGuest } from '../src/config/launcherConfig';
+import {
+  launcherConfig,
+  welcomeMessageForGuest,
+} from '../src/config/launcherConfig';
 import { importHotelLogo, logoFileExtension } from '../src/services/hotelLogo';
 import {
   defaultLauncherSettings,
@@ -27,13 +30,13 @@ test('welcome message fills the guest name from settings', () => {
   expect(welcomeMessageForGuest('   ')).toBe('Good Evening');
   expect(launcherConfig.welcomeMessage).toContain('{guestName}');
   expect(welcomeMessageForGuest(defaultLauncherSettings().guestName)).toBe(
-    'Good Evening, Ethan',
+    'Good Evening, Guest',
   );
 });
 
 test('saved settings overlay defaults and keep an in-progress edit', () => {
   const defaults = defaultLauncherSettings();
-  expect(defaults.guestName).toBe('Ethan');
+  expect(defaults.guestName).toBe('Guest');
   expect(defaults.logoPath).toBeNull();
 
   const stored = mergeLauncherSettings({
@@ -110,7 +113,13 @@ test('a guest name edit updates the welcome line', async () => {
   });
 
   const input = renderer!.root.findByProps({ testID: 'setting-guestName' });
-  expect(input.props.value).toBe('Ethan');
+  expect(input.props.value).toBe('Guest');
+  const settingsFocus = renderer!.root.findByProps({ trapFocusUp: true });
+  expect(settingsFocus.props.trapFocusDown).toBe(true);
+  expect(settingsFocus.props.trapFocusLeft).toBeUndefined();
+  expect(settingsFocus.findByProps({ testID: 'setting-guestName' })).toBe(
+    input,
+  );
 
   await ReactTestRenderer.act(() => {
     input.props.onChangeText('Ava');

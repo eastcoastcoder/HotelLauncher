@@ -169,6 +169,7 @@ test('an explicit preferred row still takes focus', async () => {
     );
   });
 
+  expect(pressableFor(renderer!, 'Hulu').props.android_disableSound).toBe(true);
   expect(pressableFor(renderer!, 'Hulu').props.hasTVPreferredFocus).toBe(true);
   expect(pressableFor(renderer!, 'Bonkflix').props.hasTVPreferredFocus).toBe(
     undefined,

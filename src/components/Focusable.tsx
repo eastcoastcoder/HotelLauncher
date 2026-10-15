@@ -57,6 +57,9 @@ export const Focusable = React.forwardRef<View, Props>(function FocusableControl
       hasTVPreferredFocus={hasTVPreferredFocus}
       onPress={onPress}
       onPressOut={onPressOut}
+      // A focusable Android TV view already clicks through its OnClickListener,
+      // and that plays a system click. Pressable would play a second one.
+      android_disableSound={focusable ? true : undefined}
       onLongPress={onLongPress}
       delayLongPress={delayLongPress}
       onFocus={() => {
