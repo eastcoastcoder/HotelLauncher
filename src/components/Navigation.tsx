@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { findNodeHandle, StyleSheet, Text, View } from 'react-native';
+import { findNodeHandle, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useBackground } from '../context/BackgroundContext';
 import { useNavReturn } from '../navigation/NavReturn';
 import { colors } from '../theme/colors';
@@ -18,6 +18,7 @@ type Props = {
   menuItems: readonly MenuItem[];
   preferredFocusId?: string | null;
   preferredFocusNonce?: number;
+  scrollable?: boolean;
 };
 
 export function Navigation({
@@ -30,6 +31,7 @@ export function Navigation({
   enabled = true,
   preferredFocusId = null,
   preferredFocusNonce = 0,
+  scrollable = false,
 }: Props) {
   const [focusedId, setFocusedId] = useState<string | null>(null);
   const {
@@ -161,12 +163,33 @@ export function Navigation({
     );
   });
 
-  return <View style={styles.column}>{rows}</View>;
+  if (!scrollable) {
+    return <View style={styles.column}>{rows}</View>;
+  }
+  return (
+    <ScrollView
+      style={styles.scroll}
+      contentContainerStyle={styles.columnScroll}
+    >
+      {rows}
+    </ScrollView>
+  );
 }
 
 const styles = StyleSheet.create({
   column: {
     width: 200,
+    paddingTop: 6,
+    paddingBottom: 8,
+    gap: 4,
+  },
+  scroll: {
+    width: 200,
+    flexGrow: 0,
+    flexShrink: 0,
+    alignSelf: 'stretch',
+  },
+  columnScroll: {
     paddingTop: 6,
     paddingBottom: 8,
     gap: 4,

@@ -11,15 +11,26 @@ type Props = {
   apps: readonly InstalledApp[];
   status: 'loading' | 'ready' | 'error';
   armed: boolean;
+  mode?: 'override' | 'added' | 'add';
   onChoose: (appId: string) => void;
-  onClear: () => void;
+  onClear?: () => void;
+  onHide?: () => void;
+  onRemove?: () => void;
   onClose: () => void;
 };
 
 function selectionSummary(
   item: MenuItem,
   apps: readonly InstalledApp[],
+  mode: 'override' | 'added' | 'add',
 ): string {
+  if (mode === 'add') {
+    return 'Choose an installed app.';
+  }
+  if (mode === 'added') {
+    const label = apps.find(app => app.appId === item.appId)?.label;
+    return label ? `App: ${label}` : `App: ${item.appId}`;
+  }
   if (item.customAppId) {
     const label = apps.find(app => app.appId === item.customAppId)?.label;
     return label ? `Custom app: ${label}` : `Custom app: ${item.customAppId}`;
@@ -35,8 +46,11 @@ export function CustomAppDialog({
   apps,
   status,
   armed,
+  mode = 'override',
   onChoose,
   onClear,
+  onHide,
+  onRemove,
   onClose,
 }: Props) {
   // This is an overlay in the same window, not a Modal. A Modal takes window
@@ -47,16 +61,19 @@ export function CustomAppDialog({
   const clearOn = armed && status !== 'loading';
   const holdFocus = armed && !rowsOn && !clearOn;
 
+  const selectedId = mode === 'added' ? item.appId : item.customAppId;
   const preferredAppId =
-    item.customAppId != null && apps.some(app => app.appId === item.customAppId)
-      ? item.customAppId
+    selectedId != null && apps.some(app => app.appId === selectedId)
+      ? selectedId
       : apps[0]?.appId ?? null;
 
   return (
     <View style={styles.scrim}>
       <BackClose onRequestClose={onClose} />
       <View style={styles.card} testID="custom-app-dialog">
-        <Text style={styles.kicker}>CUSTOM APP</Text>
+        <Text style={styles.kicker}>
+          {mode === 'add' ? 'ADD APP' : 'CUSTOM APP'}
+        </Text>
         <Text style={styles.title}>{item.title}</Text>
         {holdFocus ? (
           <Focusable
@@ -66,12 +83,12 @@ export function CustomAppDialog({
             testID="custom-app-select-guard"
           >
             <Text style={styles.summaryText}>
-              {selectionSummary(item, apps)}
+              {selectionSummary(item, apps, mode)}
             </Text>
           </Focusable>
         ) : (
           <Text style={[styles.summary, styles.summaryText]}>
-            {selectionSummary(item, apps)}
+            {selectionSummary(item, apps, mode)}
           </Text>
         )}
         {status === 'loading' ? (
@@ -95,7 +112,7 @@ export function CustomAppDialog({
               <AppChoice
                 key={app.appId}
                 app={app}
-                selected={app.appId === item.customAppId}
+                selected={app.appId === selectedId}
                 selectable={rowsOn}
                 preferred={rowsOn && app.appId === preferredAppId}
                 onChoose={onChoose}
@@ -103,22 +120,71 @@ export function CustomAppDialog({
             ))}
           </ScrollView>
         ) : null}
-        {clearOn ? (
-          <Focusable
-            onPress={onClear}
-            style={styles.clear}
-            testID="custom-app-clear"
-            hasTVPreferredFocus={!rowsOn}
-          >
-            <Text style={styles.clearLabel}>Clear</Text>
-          </Focusable>
-        ) : (
-          <View style={styles.clear} testID="custom-app-clear">
-            <Text style={styles.clearLabel}>Clear</Text>
+        {onClear || onHide || onRemove ? (
+          <View style={styles.actions}>
+            {onClear ? (
+              <DialogAction
+                label="Clear"
+                testID="custom-app-clear"
+                enabled={clearOn}
+                preferred={clearOn && !rowsOn}
+                onPress={onClear}
+              />
+            ) : null}
+            {onHide ? (
+              <DialogAction
+                label="Hide"
+                testID="custom-app-hide"
+                enabled={clearOn}
+                preferred={clearOn && !rowsOn && onClear == null}
+                onPress={onHide}
+              />
+            ) : null}
+            {onRemove ? (
+              <DialogAction
+                label="Remove"
+                testID="custom-app-remove"
+                enabled={clearOn}
+                preferred={clearOn && !rowsOn}
+                onPress={onRemove}
+              />
+            ) : null}
           </View>
-        )}
+        ) : null}
       </View>
     </View>
+  );
+}
+
+function DialogAction({
+  label,
+  testID,
+  enabled,
+  preferred,
+  onPress,
+}: {
+  label: string;
+  testID: string;
+  enabled: boolean;
+  preferred: boolean;
+  onPress: () => void;
+}) {
+  if (!enabled) {
+    return (
+      <View style={styles.clear} testID={testID}>
+        <Text style={styles.clearLabel}>{label}</Text>
+      </View>
+    );
+  }
+  return (
+    <Focusable
+      onPress={onPress}
+      style={styles.clear}
+      testID={testID}
+      hasTVPreferredFocus={preferred}
+    >
+      <Text style={styles.clearLabel}>{label}</Text>
+    </Focusable>
   );
 }
 
@@ -249,6 +315,11 @@ const styles = StyleSheet.create({
   selected: {
     ...type.cta,
     color: colors.accent,
+  },
+  actions: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
   },
   clear: {
     alignSelf: 'flex-start',
