@@ -14,10 +14,10 @@ test('stream rows use Android package ids and an empty custom app', () => {
   ).toEqual([
     ['bonkflix', 'com.netflix.ninja', null],
     ['dogetube', 'com.google.android.youtube.tv', null],
-    ['prime', 'com.amazon.amazonvideo.livingroom', null],
-    ['disney', 'com.disney.disneyplus', null],
-    ['hulu', 'com.hulu.livingroomplus', null],
-    ['max', 'com.wbd.stream', null],
+    ['primecheems', 'com.amazon.amazonvideo.livingroom', null],
+    ['dogeneyplus', 'com.disney.disneyplus', null],
+    ['dululu', 'com.hulu.livingroomplus', null],
+    ['hbomaxxing', 'com.wbd.stream', null],
   ]);
 });
 

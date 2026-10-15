@@ -33,7 +33,7 @@ jest.mock('react-native/Libraries/ReactNative/RendererProxy', () => {
       const handle = nextHandle;
       nextHandle += 1;
       handles.set(node, handle);
-      (globalThis as {__focusCalls?: number[]}).__focusCalls?.push(handle);
+      (globalThis as { __focusCalls?: number[] }).__focusCalls?.push(handle);
       return handle;
     },
   };
@@ -70,7 +70,7 @@ function preferredTitles(renderer: ReactTestRenderer.ReactTestRenderer) {
 }
 
 const focusCallLog: number[] = [];
-(globalThis as {__focusCalls?: number[]}).__focusCalls = focusCallLog;
+(globalThis as { __focusCalls?: number[] }).__focusCalls = focusCallLog;
 
 function focusCalls() {
   return focusCallLog;
@@ -86,10 +86,10 @@ function Harness({ initial }: { initial: ScreenId }) {
     screen === 'Stream'
       ? streamMenuItems
       : screen === 'MyMedia'
-        ? mediaMenuItems
-        : screen === 'HotelInfo'
-          ? hotelInfoMenuItems
-          : null;
+      ? mediaMenuItems
+      : screen === 'HotelInfo'
+      ? hotelInfoMenuItems
+      : null;
   return (
     <BackgroundProvider>
       <NavReturnProvider>
@@ -162,15 +162,19 @@ test('an explicit preferred row still takes focus', async () => {
         <Navigation
           active="Stream"
           menuItems={streamMenuItems}
-          preferredFocusId="hulu"
+          preferredFocusId="dululu"
           onSelect={() => {}}
         />
       </BackgroundProvider>,
     );
   });
 
-  expect(pressableFor(renderer!, 'Hulu').props.android_disableSound).toBe(true);
-  expect(pressableFor(renderer!, 'Hulu').props.hasTVPreferredFocus).toBe(true);
+  expect(pressableFor(renderer!, 'Dululu').props.android_disableSound).toBe(
+    true,
+  );
+  expect(pressableFor(renderer!, 'Dululu').props.hasTVPreferredFocus).toBe(
+    true,
+  );
   expect(pressableFor(renderer!, 'Bonkflix').props.hasTVPreferredFocus).toBe(
     undefined,
   );

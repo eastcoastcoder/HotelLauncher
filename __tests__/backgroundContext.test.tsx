@@ -122,13 +122,13 @@ test('menu hover shows that row background and a row without one restores the de
 
   await ReactTestRenderer.act(() => {
     controlsFor(renderer!, 'DogeTube').focus.props.onBlur();
-    controlsFor(renderer!, 'Amazon Prime Video').focus.props.onFocus();
+    controlsFor(renderer!, 'Prime Cheems').focus.props.onFocus();
   });
   expect(textOf(renderer!, 'background')).toBe('default');
-  expect(textOf(renderer!, 'hovered')).toBe('prime');
+  expect(textOf(renderer!, 'hovered')).toBe('primecheems');
 
   await flushFrame();
-  expect(textOf(renderer!, 'hovered')).toBe('prime');
+  expect(textOf(renderer!, 'hovered')).toBe('primecheems');
   expect(textOf(renderer!, 'background')).toBe('default');
 });
 
