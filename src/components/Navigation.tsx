@@ -1,6 +1,7 @@
-import React, { useEffect, useState } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { findNodeHandle, StyleSheet, Text, View } from 'react-native';
 import { useBackground } from '../context/BackgroundContext';
+import { useNavReturn } from '../navigation/NavReturn';
 import { colors } from '../theme/colors';
 import { type } from '../theme/typography';
 import { MenuItem, ScreenId } from '../types';
@@ -38,81 +39,129 @@ export function Navigation({
     releaseMenuItems,
   } = useBackground();
   const menuItemKey = menuItems.map(item => item.id).join('\0');
+  // Screen menus name a ScreenId. Submenus (Stream, My Media, Hotel Info) do not.
+  const directsScreen = menuItems.some(item => item.screen != null);
+  const menuItemsRef = useRef(menuItems);
+  menuItemsRef.current = menuItems;
+  const itemRefs = useRef(new Map<string, View | null>());
+  const navReturn = useNavReturn();
+  const navReturnRef = useRef(navReturn);
+  navReturnRef.current = navReturn;
+  const returnTarget = navReturn?.mains[active] ?? null;
+  const entryTarget = navReturn?.entries[active] ?? null;
+
+  const publishNavHandles = useCallback(() => {
+    const link = navReturnRef.current;
+    if (link == null) {
+      return;
+    }
+    const items = menuItemsRef.current;
+    if (directsScreen) {
+      const item = items.find(entry => entry.screen === active);
+      const node = item == null ? null : itemRefs.current.get(item.id);
+      link.setMain(active, node == null ? null : findNodeHandle(node));
+      return;
+    }
+    const first = items[0];
+    const node = first == null ? null : itemRefs.current.get(first.id);
+    link.setEntry(active, node == null ? null : findNodeHandle(node));
+  }, [active, directsScreen]);
+
+  useEffect(() => {
+    publishNavHandles();
+    return () => {
+      const link = navReturnRef.current;
+      if (directsScreen) {
+        link?.setMain(active, null);
+        return;
+      }
+      link?.setEntry(active, null);
+    };
+  }, [active, directsScreen, publishNavHandles]);
 
   useEffect(() => {
     const ids = new Set(menuItemKey === '' ? [] : menuItemKey.split('\0'));
     return () => releaseMenuItems(ids);
   }, [menuItemKey, releaseMenuItems]);
 
-  return (
-    <View style={styles.column}>
-      {menuItems.map((item, index) => {
-        const selected = item.screen === active;
-        const emphasized =
-          focusedId === null ? selected : focusedId === item.id;
-        const color = emphasized ? colors.navActive : colors.navIdle;
-        return (
-          <Focusable
-            key={
-              preferredFocusId === item.id
-                ? `${item.id}:${preferredFocusNonce}`
-                : item.id
-            }
-            focusable={enabled}
-            hasTVPreferredFocus={
-              preferredFocusId != null
-                ? preferredFocusId === item.id
-                : index === 0
-            }
-            onPress={() => {
-              setActiveMenuItem(item.id);
-              if (onItemPress) {
-                onItemPress(item);
-                return;
+  const rows = menuItems.map(item => {
+    const selected = item.screen === active;
+    const emphasized = focusedId === null ? selected : focusedId === item.id;
+    const color = emphasized ? colors.navActive : colors.navIdle;
+    const preferred =
+      preferredFocusId != null
+        ? preferredFocusId === item.id
+        : directsScreen && item.screen === active;
+    return (
+      <Focusable
+        key={
+          preferredFocusId === item.id
+            ? `${item.id}:${preferredFocusNonce}`
+            : item.id
+        }
+        ref={node => {
+          itemRefs.current.set(item.id, node);
+        }}
+        focusable={enabled}
+        hasTVPreferredFocus={preferred ? true : undefined}
+        onLayout={publishNavHandles}
+        nextFocusLeft={
+          directsScreen || returnTarget == null ? undefined : returnTarget
+        }
+        nextFocusRight={
+          directsScreen && item.screen === active && entryTarget != null
+            ? entryTarget
+            : undefined
+        }
+        onPress={() => {
+          setActiveMenuItem(item.id);
+          if (onItemPress) {
+            onItemPress(item);
+            return;
+          }
+          onSelect(item.screen);
+        }}
+        onPressOut={
+          onItemPressOut == null
+            ? undefined
+            : () => {
+                onItemPressOut(item);
               }
-              onSelect(item.screen);
-            }}
-            onPressOut={
-              onItemPressOut == null
-                ? undefined
-                : () => {
-                    onItemPressOut(item);
-                  }
-            }
-            onLongPress={
-              onItemLongPress == null
-                ? undefined
-                : () => {
-                    onItemLongPress(item);
-                  }
-            }
-            delayLongPress={700}
-            onFocusChange={focused => {
-              setFocusedId(current => {
-                if (focused) {
-                  return item.id;
-                }
-                return current === item.id ? null : current;
-              });
-              if (focused) {
-                setHoveredMenuItem(item.id);
-              } else {
-                clearHoveredMenuItem(item.id);
+        }
+        onLongPress={
+          onItemLongPress == null
+            ? undefined
+            : () => {
+                onItemLongPress(item);
               }
-            }}
-            style={[styles.item, emphasized && styles.itemOn]}
-            focusedStyle={styles.itemOn}
-          >
-            <View style={styles.barSlot}>
-              {emphasized ? <View style={styles.bar} /> : null}
-            </View>
-            {item.icon ? <NavIcon name={item.icon} color={color} /> : null}
-            <Text style={[styles.label, { color }]}>{item.title}</Text>
-          </Focusable>
-        );
-      })}
-    </View>
-  );
+        }
+        delayLongPress={700}
+        onFocusChange={focused => {
+          setFocusedId(current => {
+            if (focused) {
+              return item.id;
+            }
+            return current === item.id ? null : current;
+          });
+          if (focused) {
+            setHoveredMenuItem(item.id);
+          } else {
+            clearHoveredMenuItem(item.id);
+          }
+        }}
+        style={[styles.item, emphasized && styles.itemOn]}
+        focusedStyle={styles.itemOn}
+      >
+        <View style={styles.barSlot}>
+          {emphasized ? <View style={styles.bar} /> : null}
+        </View>
+        {item.icon ? <NavIcon name={item.icon} color={color} /> : null}
+        <Text style={[styles.label, { color }]}>{item.title}</Text>
+      </Focusable>
+    );
+  });
+
+  return <View style={styles.column}>{rows}</View>;
 }
 
 const styles = StyleSheet.create({

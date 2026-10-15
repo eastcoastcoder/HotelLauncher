@@ -24,6 +24,7 @@ type Props = {
   nextFocusDown?: number;
   nextFocusLeft?: number;
   nextFocusRight?: number;
+  onLayout?: () => void;
 };
 
 export const Focusable = React.forwardRef<View, Props>(function FocusableControl(
@@ -43,6 +44,7 @@ export const Focusable = React.forwardRef<View, Props>(function FocusableControl
     nextFocusDown,
     nextFocusLeft,
     nextFocusRight,
+    onLayout,
   },
   ref,
 ) {
@@ -69,6 +71,7 @@ export const Focusable = React.forwardRef<View, Props>(function FocusableControl
       nextFocusDown={nextFocusDown}
       nextFocusLeft={nextFocusLeft}
       nextFocusRight={nextFocusRight}
+      onLayout={onLayout}
       testID={testID}
       style={[
         styles.base,

@@ -10,6 +10,7 @@ import { menuItems } from '../config/launcherConfig';
 import { useScreenBackground } from '../context/BackgroundContext';
 import { colors } from '../theme/colors';
 import { defaultScreenGradient } from '../theme/screenBackground';
+import { NavReturnProvider } from './NavReturn';
 import { ScreenId } from '../types';
 
 export function TVApp() {
@@ -45,36 +46,38 @@ export function TVApp() {
         <Header />
       </View>
       <View style={[styles.body, showChrome ? undefined : styles.bodyFull]}>
-        <View style={showChrome ? undefined : styles.hidden}>
-          <Navigation
-            active={screen}
-            enabled={showChrome}
-            menuItems={menuItems}
-            onSelect={next => {
-              if (next == null) {
-                return;
-              }
-              setVideoFullscreen(false);
-              setScreen(next);
-            }}
-          />
-        </View>
-        <View style={styles.main}>
-          <ScreenBody
-            screen={screen}
-            videoFullscreen={videoFullscreen}
-            setVideoFullscreen={setVideoFullscreen}
-            showChrome={showChrome}
-          />
-          <View
-            style={
-              !showChrome || screen !== 'Discover' ? styles.hidden : undefined
-            }
-          >
-            <PromoBanner />
+        <NavReturnProvider>
+          <View style={showChrome ? undefined : styles.hidden}>
+            <Navigation
+              active={screen}
+              enabled={showChrome}
+              menuItems={menuItems}
+              onSelect={next => {
+                if (next == null) {
+                  return;
+                }
+                setVideoFullscreen(false);
+                setScreen(next);
+              }}
+            />
           </View>
-          {showChrome ? <LaunchNotice /> : null}
-        </View>
+          <View style={styles.main}>
+            <ScreenBody
+              screen={screen}
+              videoFullscreen={videoFullscreen}
+              setVideoFullscreen={setVideoFullscreen}
+              showChrome={showChrome}
+            />
+            <View
+              style={
+                !showChrome || screen !== 'Discover' ? styles.hidden : undefined
+              }
+            >
+              <PromoBanner />
+            </View>
+            {showChrome ? <LaunchNotice /> : null}
+          </View>
+        </NavReturnProvider>
       </View>
     </View>
   );
