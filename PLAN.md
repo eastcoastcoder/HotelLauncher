@@ -25,7 +25,7 @@ Body            side nav | main stage | now playing
 Footer          promotional banner
 ```
 
-Menu: Discover, Watch TV, Stream, My Media, Hotel Info, Settings, Privacy Center.
+Menu: Discover, Watch TV, Stream, My Media, Hotel Info, Settings.
 
 D-pad only: Up, Down, Left, Right, Select, Back. Focus must be obvious. Back returns to Discover.
 

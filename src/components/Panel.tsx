@@ -21,8 +21,6 @@ export function Panel({
 const styles = StyleSheet.create({
   panel: {
     flex: 1,
-    borderRadius: 16,
-    borderWidth: 1,
     padding: 28,
   },
   title: {

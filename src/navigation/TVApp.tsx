@@ -66,7 +66,11 @@ export function TVApp() {
             setVideoFullscreen={setVideoFullscreen}
             showChrome={showChrome}
           />
-          <View style={showChrome ? undefined : styles.hidden}>
+          <View
+            style={
+              !showChrome || screen !== 'Discover' ? styles.hidden : undefined
+            }
+          >
             <PromoBanner />
           </View>
           {showChrome ? <LaunchNotice /> : null}

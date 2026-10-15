@@ -38,12 +38,11 @@ export const launcherConfig: LauncherConfig = {
     { label: 'Contact', value: 'front.desk@example.com' },
   ],
   settings: [
-    { label: 'Hotel name', value: 'Hotel Launcher' },
-    { label: 'Main video', value: 'Placeholder stage' },
+    { label: 'Hotel Logo', value: 'Hotel Launcher' },
+    { label: 'Guest Name', value: 'Ethan' },
+    { label: 'Discover Channel', value: 'https://www.youtube.com/@username' },
     { label: 'Autoplay', value: 'On' },
-    { label: 'Video mute', value: 'On' },
     { label: 'Weather', value: 'Placeholder' },
-    { label: 'Debug', value: 'On' },
   ],
 };
 
@@ -54,7 +53,6 @@ export const menuItems: MenuItem[] = [
   { id: 'my-media', title: 'My Media', screen: 'MyMedia', icon: 'play' },
   { id: 'hotel-info', title: 'Hotel Info', screen: 'HotelInfo', icon: 'hotel' },
   { id: 'settings', title: 'Settings', screen: 'Settings', icon: 'settings' },
-  { id: 'privacy', title: 'Privacy Center', screen: 'Privacy', icon: null },
 ];
 
 export const streamMenuItems: StreamMenuItem[] = [

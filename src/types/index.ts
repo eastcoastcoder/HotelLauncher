@@ -28,8 +28,7 @@ export type ScreenId =
   | 'Stream'
   | 'MyMedia'
   | 'HotelInfo'
-  | 'Settings'
-  | 'Privacy';
+  | 'Settings';
 
 export interface HotelFact {
   label: string;
