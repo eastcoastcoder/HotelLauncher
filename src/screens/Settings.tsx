@@ -2,6 +2,7 @@ import { useState } from 'react';
 import {
   Image,
   KeyboardTypeOptions,
+  Platform,
   StyleSheet,
   Text,
   TextInput,
@@ -19,6 +20,7 @@ import { ScreenId, SettingId } from '../types';
 
 export function Settings({}: { screen?: ScreenId }) {
   const { values, setValue, setLogoPath } = useLauncherSettings();
+  const appleTv = Platform.OS === 'ios' && Platform.isTV;
   const [picking, setPicking] = useState(false);
   const [logoError, setLogoError] = useState<string | null>(null);
 
@@ -73,30 +75,32 @@ export function Settings({}: { screen?: ScreenId }) {
                 <Text style={styles.previewLabel}>Built-in</Text>
               </View>
             )}
-            <View style={styles.logoActions}>
-              <Focusable
-                onPress={() => {
-                  onPickLogo().catch(() => undefined);
-                }}
-                testID="setting-hotel-logo"
-                style={styles.action}
-              >
-                <Text style={styles.actionText}>
-                  {picking ? 'Opening gallery…' : 'Choose image'}
-                </Text>
-              </Focusable>
-              {values.logoPath != null ? (
+            {appleTv ? null : (
+              <View style={styles.logoActions}>
                 <Focusable
                   onPress={() => {
-                    onClearLogo().catch(() => undefined);
+                    onPickLogo().catch(() => undefined);
                   }}
-                  testID="setting-hotel-logo-clear"
+                  testID="setting-hotel-logo"
                   style={styles.action}
                 >
-                  <Text style={styles.actionText}>Use built-in logo</Text>
+                  <Text style={styles.actionText}>
+                    {picking ? 'Opening gallery…' : 'Choose image'}
+                  </Text>
                 </Focusable>
-              ) : null}
-            </View>
+                {values.logoPath != null ? (
+                  <Focusable
+                    onPress={() => {
+                      onClearLogo().catch(() => undefined);
+                    }}
+                    testID="setting-hotel-logo-clear"
+                    style={styles.action}
+                  >
+                    <Text style={styles.actionText}>Use built-in logo</Text>
+                  </Focusable>
+                ) : null}
+              </View>
+            )}
           </View>
           {logoError != null ? (
             <Text style={styles.error}>{logoError}</Text>

@@ -3,16 +3,18 @@ import {
   useEffect,
   useMemo,
   useRef,
+  useState,
   type ComponentRef,
 } from 'react';
-import { StyleSheet, View } from 'react-native';
-import { WebView } from 'react-native-webview';
+import { Platform, StyleSheet, View } from 'react-native';
+import { isYouTubeVideoId } from '../config/mainStageMedia';
 import { colors } from '../theme/colors';
 import {
   buildYouTubeStageHtml,
   isStageRequestAllowed,
   STAGE_EMBED_ORIGIN,
 } from './youtubeStageHtml';
+import { advancePlaylist, shuffleIds } from './youtubeStagePlaylist';
 
 interface YouTubeStageProps {
   videoIds: readonly string[];
@@ -27,6 +29,149 @@ export function YouTubeStage({
   onPlaying,
   onFatal,
 }: YouTubeStageProps) {
+  // Apple TV has no WebKit. The WebView import stays inside YouTubeWebStage
+  // so this branch never loads it.
+  if (Platform.OS === 'ios' && Platform.isTV) {
+    return (
+      <YouTubeTvStage
+        videoIds={videoIds}
+        muted={muted}
+        onPlaying={onPlaying}
+        onFatal={onFatal}
+      />
+    );
+  }
+
+  return (
+    <YouTubeWebStage
+      videoIds={videoIds}
+      muted={muted}
+      onPlaying={onPlaying}
+      onFatal={onFatal}
+    />
+  );
+}
+
+const STALL_MS = 45000;
+
+function YouTubeTvStage({
+  videoIds,
+  muted,
+  onPlaying,
+  onFatal,
+}: YouTubeStageProps) {
+  const { NativeYouTubePlayer } =
+    require('./NativeYouTubePlayer') as typeof import('./NativeYouTubePlayer');
+  const playableKey = videoIds.filter(isYouTubeVideoId).join('\n');
+  const [order, setOrder] = useState<string[]>([]);
+  const [index, setIndex] = useState(0);
+  const orderRef = useRef(order);
+  const indexRef = useRef(index);
+  orderRef.current = order;
+  indexRef.current = index;
+  const failures = useRef(0);
+  const onFatalRef = useRef(onFatal);
+  const onPlayingRef = useRef(onPlaying);
+  onFatalRef.current = onFatal;
+  onPlayingRef.current = onPlaying;
+  const stall = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const clearStall = useCallback(() => {
+    if (stall.current != null) {
+      clearTimeout(stall.current);
+      stall.current = null;
+    }
+  }, []);
+
+  const advance = useCallback(
+    (failed: boolean) => {
+      const current = orderRef.current;
+      if (current.length === 0) {
+        onFatalRef.current();
+        return;
+      }
+      if (failed) {
+        failures.current += 1;
+        if (failures.current >= current.length) {
+          onFatalRef.current();
+          return;
+        }
+      } else {
+        failures.current = 0;
+      }
+      const next = advancePlaylist(current, indexRef.current);
+      orderRef.current = next.ids;
+      indexRef.current = next.index;
+      setOrder(next.ids);
+      setIndex(next.index);
+    },
+    [],
+  );
+
+  useEffect(() => {
+    failures.current = 0;
+    const next = shuffleIds(playableKey === '' ? [] : playableKey.split('\n'));
+    orderRef.current = next;
+    indexRef.current = 0;
+    setOrder(next);
+    setIndex(0);
+    if (next.length === 0) {
+      onFatalRef.current();
+    }
+  }, [playableKey]);
+
+  const videoId = order[index] ?? '';
+
+  useEffect(() => {
+    if (videoId === '') {
+      return;
+    }
+    clearStall();
+    stall.current = setTimeout(() => advance(true), STALL_MS);
+    return clearStall;
+  }, [videoId, advance, clearStall]);
+
+  if (videoId === '') {
+    return <View style={styles.frame} pointerEvents="none" />;
+  }
+
+  return (
+    <View
+      style={styles.frame}
+      pointerEvents="none"
+      focusable={false}
+      tvFocusable={false}>
+      <NativeYouTubePlayer
+        style={styles.web}
+        videoId={videoId}
+        play
+        muted={muted}
+        onStatus={event => {
+          const state = event.nativeEvent.state;
+          if (state === 'playing') {
+            clearStall();
+            failures.current = 0;
+            onPlayingRef.current();
+          } else if (state === 'ended') {
+            clearStall();
+            advance(false);
+          } else if (state === 'error') {
+            clearStall();
+            advance(true);
+          }
+        }}
+      />
+    </View>
+  );
+}
+
+function YouTubeWebStage({
+  videoIds,
+  muted,
+  onPlaying,
+  onFatal,
+}: YouTubeStageProps) {
+  const { WebView } = require('react-native-webview') as typeof import('react-native-webview');
   const html = useMemo(() => buildYouTubeStageHtml(videoIds), [videoIds]);
   const webRef = useRef<ComponentRef<typeof WebView>>(null);
   const mutedRef = useRef(muted);

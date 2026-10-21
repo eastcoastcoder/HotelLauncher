@@ -1,10 +1,10 @@
 # Hotel Launcher
 
-Android TV home screen for a Sony BRAVIA A90K, built with React Native TV (`react-native-tvos@0.83.0-0`).
+Android TV home screen for a Sony BRAVIA A90K, built with React Native TV (`react-native-tvos@0.83.0-0`). An Apple TV (tvOS) Xcode project is in `ios/` with deployment target 15.1. Phone, tablet, and a web app are not part of this project.
 
 The UI is a configurable hotel layout: header, D-pad menu, featured stage, now playing panel, and promo banner. Copy and branding live in `src/config/launcherConfig.ts`.
 
-iOS is not part of this project.
+Apple TV runs the same UI. The Discover stage uses a native player there because tvOS has no WebKit. Android TV still uses the WebView. Installed-app launch and the settings photo gallery stay on Android TV.
 
 ## Requirements
 
@@ -20,6 +20,12 @@ iOS is not part of this project.
 npm install
 npm start
 npm run android
+```
+
+Apple TV simulator (Xcode with the tvOS SDK, after `pod install` succeeds):
+
+```sh
+npm run tvos
 ```
 
 Sideload a debug build when an A90K is connected:
@@ -41,7 +47,7 @@ Up and Down move through the menu. Select opens a section. Back returns to Disco
 
 ## Not in this build
 
-- Native video playback (the stage is a placeholder until a TV-compatible player is verified)
+- Discover streams a YouTube channel (WebView on Android TV, native player on Apple TV)
 - Installed streaming-app discovery
 - Sony tuner, HDMI, boot, or volume hooks
 - Persistent settings

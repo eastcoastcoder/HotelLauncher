@@ -5,7 +5,7 @@ Built with **React Native TV** (`react-native-tvos`). Branding is data-driven so
 
 ## Scope
 
-Android TV only for Phases 2–5, on the Sony BRAVIA A90K. Do not add phone, tablet, or web targets. tvOS is a later goal; do not restore that target during Phases 2–5. See Later — tvOS alongside Android TV.
+Android TV on the Sony BRAVIA A90K stays the proven target for Phases 2–5. Do not add phone, tablet, or web targets. The tvOS Xcode project is restored so it can be fixed alongside that work. See Later — tvOS alongside Android TV.
 The A90K may refuse a third-party app as the permanent system Home. The app must stay launchable from the TV apps row and recoverable if Home replacement is declined.
 
 ## Stack
@@ -160,13 +160,19 @@ Locked admin config (branding, video, promos, hotel info, menu) without source e
 
 ## Later — tvOS alongside Android TV
 
-Phone, tablet, and web stay out. This is not part of Phases 2–5.
+Phone, tablet, and web stay out. The tvOS app is not required to finish Phases 2–5.
 
-Goal: bring the tvOS target back so one launcher runs on Android TV and tvOS. Start only after the Android TV app on the A90K is stable.
+The Xcode project is under `ios/`, from `@react-native-tvos/template-tv@0.83.0-0`, renamed to HotelLauncher. `SDKROOT` is `appletvos`. `TVOS_DEPLOYMENT_TARGET` is 15.1. The Podfile uses `platform :tvos`. The bundle id is `com.hotellauncher`. `npm run tvos` runs `react-native run-ios --simulator "Apple TV 4K (3rd generation) (18.0)"`.
 
-The open risk is one codebase serving both platforms. Shared UI, D-pad focus, and the Discover YouTube WebView must keep working on Android TV when the tvOS project returns. Platform-specific native code and builds must not break the A90K sideload.
+tvOS has no WebKit. `youtube-ios-player-helper` is an iOS WebView wrapper (`s.platform = :ios`) and its latest release is 1.0.4, so it is not a tvOS player. Android TV keeps the Discover WebView. Apple TV mounts `NativeYouTubePlayer`: an `AVPlayer` view. It posts to YouTube's player endpoint with the Android client first and the iOS client second, ignores the URL cache because the video id is in the body, and plays an HLS manifest or a muxed MP4. Focus still unmutes and blur mutes. The deck shuffle matches the WebView page.
 
-This is done when both targets are proven and the A90K app is still launchable.
+`react-native.config.js` turns off iOS autolinking for pods that declare iOS only and need WebKit or Photos: `react-native-webview`, `@react-native-async-storage/async-storage`, `react-native-blob-util`, and `react-native-image-picker`. Android autolinking is unchanged. `react-native-safe-area-context` already declares tvOS. Settings and the stream layout persist on Apple TV through `TvAsyncStorage`, registered as `RNAsyncStorage` and backed by `UserDefaults`. The hotel-logo gallery and installed-app launch stay Android-only. A missing `InstalledApps` module leaves custom app overrides empty instead of raising a Stream load error.
+
+`scripts/patch-fmt-version.js` bumps fmt to 11.1.4 so Xcode 27 can compile it. `scripts/patch-cli-simulator.js` looks for `DeviceHub.app`, which replaced `Simulator.app` in Xcode 27. `scripts/patch-rn-cocoapods-utils.js` is not part of postinstall. The published `utils.rb` in `react-native-tvos@0.83.0-0` parses on its own.
+
+Do not add the Android YouTube player library. The A90K sideload stays on the WebView.
+
+This is done when the Apple TV simulator launches HotelLauncher and the A90K app still launches.
 
 ## Run
 

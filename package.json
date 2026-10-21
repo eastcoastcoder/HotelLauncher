@@ -5,8 +5,9 @@
   "scripts": {
     "android": "react-native run-android",
     "android:emulator": "react-native run-android --deviceId emulator-5554",
+    "tvos": "react-native run-ios --simulator \"Apple TV 4K (3rd generation) (18.0)\"",
     "lint": "eslint .",
-    "postinstall": "node scripts/patch-react-native-webview.js",
+    "postinstall": "node scripts/patch-react-native-webview.js && node scripts/patch-fmt-version.js && node scripts/patch-cli-simulator.js",
     "start": "react-native start",
     "test": "jest"
   },

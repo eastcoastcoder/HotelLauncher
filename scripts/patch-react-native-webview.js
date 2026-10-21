@@ -14,19 +14,14 @@ const from =
   "navigationType: 'click' | 'formsubmit' | 'backforward' | 'reload' | 'formresubmit' | 'other';";
 const to = 'navigationType: string;';
 
-if (!fs.existsSync(target)) {
-  process.exit(0);
-}
-
-const source = fs.readFileSync(target, 'utf8');
-if (!source.includes(from)) {
-  if (source.includes(to)) {
-    process.exit(0);
+if (fs.existsSync(target)) {
+  const source = fs.readFileSync(target, 'utf8');
+  if (source.includes(from)) {
+    fs.writeFileSync(target, source.split(from).join(to));
+  } else if (!source.includes(to)) {
+    console.error(
+      'react-native-webview codegen patch no longer matches RNCWebViewNativeComponent.ts',
+    );
+    process.exit(1);
   }
-  console.error(
-    'react-native-webview codegen patch no longer matches RNCWebViewNativeComponent.ts',
-  );
-  process.exit(1);
 }
-
-fs.writeFileSync(target, source.split(from).join(to));

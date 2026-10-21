@@ -63,6 +63,11 @@ export function launchApp(appId: string): Promise<boolean> {
 }
 
 export async function getCustomAppIds(): Promise<Record<string, string>> {
+  // Apple TV has no installed-app store. An empty map keeps Stream from
+  // showing a load error on every visit.
+  if (NativeModules.InstalledApps == null) {
+    return {};
+  }
   return normalizeCustomAppIds(await nativeModule().getCustomAppIds());
 }
 
