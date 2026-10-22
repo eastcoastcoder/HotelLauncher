@@ -38,6 +38,46 @@ export function isStageRequestAllowed(url: string): boolean {
   );
 }
 
+export type StagePlayerMessage =
+  | { event: 'playing' | 'paused' | 'cue'; videoId: string; title: string }
+  | { event: 'failed' };
+
+export function parseStagePlayerMessage(data: string): StagePlayerMessage | null {
+  if (data === 'playing') {
+    return { event: 'playing', videoId: '', title: '' };
+  }
+  if (data === 'failed') {
+    return { event: 'failed' };
+  }
+
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(data);
+  } catch {
+    return null;
+  }
+  if (!parsed || typeof parsed !== 'object') {
+    return null;
+  }
+
+  const record = parsed as { event?: unknown; videoId?: unknown; title?: unknown };
+  if (record.event === 'failed') {
+    return { event: 'failed' };
+  }
+  if (
+    record.event !== 'playing' &&
+    record.event !== 'paused' &&
+    record.event !== 'cue'
+  ) {
+    return null;
+  }
+  return {
+    event: record.event,
+    videoId: typeof record.videoId === 'string' ? record.videoId : '',
+    title: typeof record.title === 'string' ? record.title : '',
+  };
+}
+
 /**
  * One page that streams the channel. With shuffle on, the list is shuffled,
  * then each video plays through, and a finished pass is shuffled again.
@@ -186,6 +226,21 @@ export function buildYouTubeStageHtml(
         window.scrollTo(0, 0);
       }
       window.fitStage = fit;
+      function videoTitle() {
+        try {
+          var data = player && player.getVideoData && player.getVideoData();
+          return (data && data.title) || '';
+        } catch (error) {
+          return '';
+        }
+      }
+      function report(eventName) {
+        post(JSON.stringify({
+          event: eventName,
+          videoId: ids[index] || '',
+          title: videoTitle()
+        }));
+      }
       function playCurrent() {
         if (!player || failures >= ids.length) {
           post('failed');
@@ -194,7 +249,49 @@ export function buildYouTubeStageHtml(
         player.loadVideoById(ids[index]);
         applyAudio();
         arm();
+        post(JSON.stringify({
+          event: 'cue',
+          videoId: ids[index] || '',
+          title: ''
+        }));
       }
+      function goPrevious() {
+        clearWatch();
+        failures = 0;
+        if (!player || !ids.length) {
+          return;
+        }
+        index -= 1;
+        if (index < 0) {
+          index = ids.length - 1;
+        }
+        playCurrent();
+      }
+      function goNext() {
+        failures = 0;
+        advance();
+      }
+      function togglePlay() {
+        if (!player || !player.getPlayerState) {
+          return;
+        }
+        if (player.getPlayerState() === 1) {
+          clearWatch();
+          player.pauseVideo();
+          return;
+        }
+        player.playVideo();
+        arm();
+      }
+      window.stageCommand = function (command) {
+        if (command === 'previous') {
+          goPrevious();
+        } else if (command === 'next') {
+          goNext();
+        } else if (command === 'toggle') {
+          togglePlay();
+        }
+      };
       function advance() {
         clearWatch();
         if (failures >= ids.length) {
@@ -228,7 +325,10 @@ export function buildYouTubeStageHtml(
           clearWatch();
           failures = 0;
           fit();
-          post('playing');
+          report('playing');
+        } else if (event.data === 2) {
+          clearWatch();
+          report('paused');
         } else if (event.data === 0) {
           failures = 0;
           advance();

@@ -6,6 +6,7 @@ import {
 import {
   buildYouTubeStageHtml,
   isStageRequestAllowed,
+  parseStagePlayerMessage,
 } from '../src/components/youtubeStageHtml';
 import {
   channelVideosPageUrl,
@@ -85,6 +86,9 @@ test('stage document shuffles the channel, stays quiet until unmuted, and cannot
   expect(html).toContain('var shuffleOn = true');
   expect(html).toContain('Math.random');
   expect(html).toContain('setStageMuted');
+  expect(html).toContain('window.stageCommand');
+  expect(html).toContain("command === 'previous'");
+  expect(html).toContain("command === 'toggle'");
   expect(html).toContain('overflow: hidden');
   expect(html).toContain('position: fixed');
   expect(html.indexOf('shuffle(ids)')).toBeLessThan(html.indexOf('new YT.Player'));
@@ -101,6 +105,22 @@ test('stage document shuffles the channel, stays quiet until unmuted, and cannot
   ).toBe(true);
   expect(isStageRequestAllowed('https://com.hotellauncher/')).toBe(true);
   expect(isStageRequestAllowed('https://example.com/watch')).toBe(false);
+  expect(parseStagePlayerMessage('playing')).toEqual({
+    event: 'playing',
+    videoId: '',
+    title: '',
+  });
+  expect(
+    parseStagePlayerMessage(
+      '{"event":"paused","videoId":"EBBcMKXSdhU","title":"Lobby"}',
+    ),
+  ).toEqual({
+    event: 'paused',
+    videoId: 'EBBcMKXSdhU',
+    title: 'Lobby',
+  });
+  expect(parseStagePlayerMessage('failed')).toEqual({ event: 'failed' });
+  expect(parseStagePlayerMessage('nope')).toBeNull();
 });
 
 test('loaded channel ids are shuffled unless shuffle is off', async () => {

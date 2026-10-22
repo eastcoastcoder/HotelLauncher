@@ -2,7 +2,9 @@ export type NavIconName =
   | 'home'
   | 'tv'
   | 'stream'
+  | 'prev'
   | 'play'
+  | 'pause'
   | 'hotel'
   | 'settings';
 

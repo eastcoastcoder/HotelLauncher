@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, type RefObject } from 'react';
 import { StyleSheet, Text, TVFocusGuideView, View } from 'react-native';
 import { launcherConfig } from '../config/launcherConfig';
 import { loadMainStageMediaConfig } from '../config/mainStageMedia';
@@ -7,18 +7,23 @@ import { loadChannelVideoIds } from '../services/youtubeChannel';
 import { colors } from '../theme/colors';
 import { type } from '../theme/typography';
 import { Focusable } from './Focusable';
+import { type NowPlayingTrack, type StageTransport } from './stageTransport';
 import { YouTubeStage } from './YouTubeStage';
 
 type Props = {
   fullscreen: boolean;
   onEnterFullscreen: () => void;
   onExitFullscreen: () => void;
+  onNowPlaying?: (track: NowPlayingTrack) => void;
+  transportRef?: RefObject<StageTransport | null>;
 };
 
 export function MainStage({
   fullscreen,
   onEnterFullscreen,
   onExitFullscreen,
+  onNowPlaying,
+  transportRef,
 }: Props) {
   const stage = launcherConfig.mainStage;
   const media = loadMainStageMediaConfig();
@@ -92,10 +97,13 @@ export function MainStage({
           shuffle={shuffleVideos}
           muted={!audible}
           onPlaying={() => setPlaying(true)}
+          onNowPlaying={onNowPlaying}
+          transportRef={transportRef}
           onFatal={() => {
             setPlaying(false);
             setVideoIds([]);
             onExitFullscreen();
+            onNowPlaying?.({ videoId: '', title: '', paused: true });
           }}
         />
       ) : null}

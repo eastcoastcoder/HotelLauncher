@@ -5,13 +5,16 @@ import {
   useRef,
   useState,
   type ComponentRef,
+  type RefObject,
 } from 'react';
 import { Platform, StyleSheet, View } from 'react-native';
 import { isYouTubeVideoId } from '../config/mainStageMedia';
 import { colors } from '../theme/colors';
+import { type NowPlayingTrack, type StageTransport } from './stageTransport';
 import {
   buildYouTubeStageHtml,
   isStageRequestAllowed,
+  parseStagePlayerMessage,
   STAGE_EMBED_ORIGIN,
 } from './youtubeStageHtml';
 import { advancePlaylist, shuffleIds } from './youtubeStagePlaylist';
@@ -23,6 +26,8 @@ interface YouTubeStageProps {
   muted: boolean;
   onPlaying: () => void;
   onFatal: () => void;
+  onNowPlaying?: (track: NowPlayingTrack) => void;
+  transportRef?: RefObject<StageTransport | null>;
 }
 
 export function YouTubeStage({
@@ -31,6 +36,8 @@ export function YouTubeStage({
   muted,
   onPlaying,
   onFatal,
+  onNowPlaying,
+  transportRef,
 }: YouTubeStageProps) {
   // Apple TV has no WebKit. The WebView import stays inside YouTubeWebStage
   // so this branch never loads it.
@@ -42,6 +49,8 @@ export function YouTubeStage({
         muted={muted}
         onPlaying={onPlaying}
         onFatal={onFatal}
+        onNowPlaying={onNowPlaying}
+        transportRef={transportRef}
       />
     );
   }
@@ -53,8 +62,34 @@ export function YouTubeStage({
       muted={muted}
       onPlaying={onPlaying}
       onFatal={onFatal}
+      onNowPlaying={onNowPlaying}
+      transportRef={transportRef}
     />
   );
+}
+
+function useStageTransport(
+  transportRef: RefObject<StageTransport | null> | undefined,
+  transport: StageTransport,
+) {
+  const latest = useRef(transport);
+  latest.current = transport;
+  useEffect(() => {
+    if (!transportRef) {
+      return;
+    }
+    const api: StageTransport = {
+      previous: () => latest.current.previous(),
+      next: () => latest.current.next(),
+      togglePlay: () => latest.current.togglePlay(),
+    };
+    transportRef.current = api;
+    return () => {
+      if (transportRef.current === api) {
+        transportRef.current = null;
+      }
+    };
+  }, [transportRef]);
 }
 
 const STALL_MS = 45000;
@@ -65,6 +100,8 @@ function YouTubeTvStage({
   muted,
   onPlaying,
   onFatal,
+  onNowPlaying,
+  transportRef,
 }: YouTubeStageProps) {
   const { NativeYouTubePlayer } =
     require('./NativeYouTubePlayer') as typeof import('./NativeYouTubePlayer');
@@ -81,6 +118,9 @@ function YouTubeTvStage({
   onFatalRef.current = onFatal;
   onPlayingRef.current = onPlaying;
   const stall = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [paused, setPaused] = useState(false);
+  const onNowPlayingRef = useRef(onNowPlaying);
+  onNowPlayingRef.current = onNowPlaying;
 
   const clearStall = useCallback(() => {
     if (stall.current != null) {
@@ -127,12 +167,45 @@ function YouTubeTvStage({
     indexRef.current = 0;
     setOrder(next);
     setIndex(0);
+    setPaused(false);
     if (next.length === 0) {
       onFatalRef.current();
     }
   }, [playableKey, shuffle]);
 
   const videoId = order[index] ?? '';
+
+  const previous = useCallback(() => {
+    const current = orderRef.current;
+    if (current.length === 0) {
+      return;
+    }
+    failures.current = 0;
+    const nextIndex =
+      (indexRef.current - 1 + current.length) % current.length;
+    indexRef.current = nextIndex;
+    setIndex(nextIndex);
+    setPaused(false);
+  }, []);
+
+  const next = useCallback(() => {
+    setPaused(false);
+    advance(false);
+  }, [advance]);
+
+  const togglePlay = useCallback(() => {
+    setPaused(value => !value);
+  }, []);
+
+  useStageTransport(transportRef, { previous, next, togglePlay });
+
+  useEffect(() => {
+    onNowPlayingRef.current?.({
+      videoId,
+      title: '',
+      paused: videoId === '' || paused,
+    });
+  }, [videoId, paused]);
 
   useEffect(() => {
     if (videoId === '') {
@@ -142,6 +215,12 @@ function YouTubeTvStage({
     stall.current = setTimeout(() => advance(true), STALL_MS);
     return clearStall;
   }, [videoId, advance, clearStall]);
+
+  useEffect(() => {
+    if (paused) {
+      clearStall();
+    }
+  }, [paused, clearStall]);
 
   if (videoId === '') {
     return <View style={styles.frame} pointerEvents="none" />;
@@ -156,7 +235,7 @@ function YouTubeTvStage({
       <NativeYouTubePlayer
         style={styles.web}
         videoId={videoId}
-        play
+        play={!paused}
         muted={muted}
         onStatus={event => {
           const state = event.nativeEvent.state;
@@ -183,6 +262,8 @@ function YouTubeWebStage({
   muted,
   onPlaying,
   onFatal,
+  onNowPlaying,
+  transportRef,
 }: YouTubeStageProps) {
   const { WebView } = require('react-native-webview') as typeof import('react-native-webview');
   const html = useMemo(
@@ -192,6 +273,23 @@ function YouTubeWebStage({
   const webRef = useRef<ComponentRef<typeof WebView>>(null);
   const mutedRef = useRef(muted);
   mutedRef.current = muted;
+
+  const onNowPlayingRef = useRef(onNowPlaying);
+  onNowPlayingRef.current = onNowPlaying;
+  const trackRef = useRef<NowPlayingTrack | null>(null);
+
+  const runCommand = useCallback((command: 'previous' | 'next' | 'toggle') => {
+    const payload = JSON.stringify(command);
+    webRef.current?.injectJavaScript(
+      `window.stageCommand&&window.stageCommand(${payload});true;`,
+    );
+  }, []);
+
+  useStageTransport(transportRef, {
+    previous: () => runCommand('previous'),
+    next: () => runCommand('next'),
+    togglePlay: () => runCommand('toggle'),
+  });
 
   const pushPlayback = useCallback(() => {
     const flag = mutedRef.current ? 'true' : 'false';
@@ -243,11 +341,32 @@ function YouTubeWebStage({
         onError={onFatal}
         onHttpError={onFatal}
         onMessage={event => {
-          if (event.nativeEvent.data === 'playing') {
-            onPlaying();
-          } else if (event.nativeEvent.data === 'failed') {
-            onFatal();
+          const message = parseStagePlayerMessage(event.nativeEvent.data);
+          if (message == null) {
+            return;
           }
+          if (message.event === 'failed') {
+            onFatal();
+            return;
+          }
+          if (message.event === 'playing') {
+            onPlaying();
+          }
+          if (message.videoId === '') {
+            return;
+          }
+          const title =
+            message.title ||
+            (trackRef.current?.videoId === message.videoId
+              ? trackRef.current.title
+              : '');
+          const nextTrack = {
+            videoId: message.videoId,
+            title,
+            paused: message.event === 'paused',
+          };
+          trackRef.current = nextTrack;
+          onNowPlayingRef.current?.(nextTrack);
         }}
       />
     </View>

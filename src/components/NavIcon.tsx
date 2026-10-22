@@ -14,8 +14,12 @@ export function NavIcon({ name, color }: Props) {
       return <Tv color={color} />;
     case 'stream':
       return <Stream color={color} />;
+    case 'prev':
+      return <Prev color={color} />;
     case 'play':
       return <Play color={color} />;
+    case 'pause':
+      return <Pause color={color} />;
     case 'hotel':
       return <Hotel color={color} />;
     case 'settings':
@@ -56,10 +60,29 @@ function Stream({ color }: { color: string }) {
   );
 }
 
+function Prev({ color }: { color: string }) {
+  return (
+    <View style={styles.box}>
+      <View style={styles.prevRow}>
+        <Triangle color={color} kind="prev" />
+        <Triangle color={color} kind="prev" />
+      </View>
+    </View>
+  );
+}
+
 function Play({ color }: { color: string }) {
   return (
     <View style={[styles.box, styles.center]}>
       <Triangle color={color} kind="play" />
+    </View>
+  );
+}
+
+function Pause({ color }: { color: string }) {
+  return (
+    <View style={[styles.box, styles.center]}>
+      <View style={[styles.pause, { borderColor: color }]} />
     </View>
   );
 }
@@ -102,12 +125,22 @@ function Settings({ color }: { color: string }) {
   );
 }
 
-function Triangle({ color, kind }: { color: string; kind: 'stream' | 'play' }) {
+function Triangle({
+  color,
+  kind,
+}: {
+  color: string;
+  kind: 'stream' | 'play' | 'prev';
+}) {
   return (
     <View
       style={[
-        kind === 'stream' ? styles.streamTriangle : styles.playTriangle,
-        { borderLeftColor: color },
+        kind === 'stream'
+          ? styles.streamTriangle
+          : kind === 'prev'
+          ? styles.prevTriangle
+          : styles.playTriangle,
+        { borderLeftColor: color, borderRightColor: color },
       ]}
     />
   );
@@ -174,6 +207,31 @@ const styles = StyleSheet.create({
     borderTopWidth: 6,
     borderBottomWidth: 6,
     borderLeftWidth: 8,
+    borderTopColor: 'transparent',
+    borderBottomColor: 'transparent',
+  },
+  pause: {
+    position: 'relative',
+    width: 13,
+    height: 12,
+    borderWidth: 4,
+    borderTopWidth: 0,
+    borderBottomWidth: 0,
+  },
+  prevRow: {
+    position: 'absolute',
+    left: 2,
+    top: 6,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 2,
+  },
+  prevTriangle: {
+    width: 0,
+    height: 0,
+    borderTopWidth: 6,
+    borderBottomWidth: 6,
+    borderRightWidth: 8,
     borderTopColor: 'transparent',
     borderBottomColor: 'transparent',
   },
