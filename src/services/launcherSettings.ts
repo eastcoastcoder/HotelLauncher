@@ -1,8 +1,17 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { launcherConfig } from '../config/launcherConfig';
+import { loadMainStageMediaConfig } from '../config/mainStageMedia';
 import { SettingId } from '../types';
 
 const STORAGE_KEY = 'launcher_settings';
+
+/** Former Discover Channel default. A saved copy is unset, not a channel. */
+const DISCOVER_CHANNEL_PLACEHOLDER = 'https://www.youtube.com/@username';
+
+function isUnsetDiscoverChannel(value: string): boolean {
+  const trimmed = value.trim();
+  return trimmed === '' || trimmed === DISCOVER_CHANNEL_PLACEHOLDER;
+}
 
 export type LauncherSettingValues = Record<SettingId, string> & {
   /** Absolute path of a copied gallery logo. Null uses the bundled logo. */
@@ -20,6 +29,13 @@ export function defaultLauncherSettings(): LauncherSettingValues {
   } as LauncherSettingValues;
   for (const item of launcherConfig.settings) {
     values[item.id] = item.value;
+  }
+  // Playback used the local stage file before this field was wired up.
+  if (isUnsetDiscoverChannel(values.discoverChannel)) {
+    const fromStage = loadMainStageMediaConfig().channel.trim();
+    if (fromStage !== '') {
+      values.discoverChannel = fromStage;
+    }
   }
   return values;
 }
@@ -56,6 +72,9 @@ export function mergeLauncherSettings(
     }
     const value = record[item.id];
     if (typeof value === 'string') {
+      if (item.id === 'discoverChannel' && value.trim() === DISCOVER_CHANNEL_PLACEHOLDER) {
+        continue;
+      }
       next[item.id] = value;
     }
   }

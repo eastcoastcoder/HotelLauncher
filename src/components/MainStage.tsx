@@ -26,8 +26,12 @@ export function MainStage({
   transportRef,
 }: Props) {
   const stage = launcherConfig.mainStage;
-  const media = loadMainStageMediaConfig();
+  const stageMedia = loadMainStageMediaConfig();
+  const excludeKey = stageMedia.exclude.join('\n');
+  const excludeRef = useRef(stageMedia.exclude);
+  excludeRef.current = stageMedia.exclude;
   const { values } = useLauncherSettings();
+  const channel = values.discoverChannel.trim();
   const shuffleVideos = values.shuffleVideos;
   const [videoIds, setVideoIds] = useState<string[] | null>(null);
   const [playing, setPlaying] = useState(false);
@@ -37,13 +41,21 @@ export function MainStage({
   const audible = focused || fullscreen;
 
   useEffect(() => {
-    if (!media.channel) {
+    if (!channel) {
+      setVideoIds(current =>
+        current != null && current.length === 0 ? current : [],
+      );
+      setPlaying(current => (current ? false : current));
       return;
     }
 
     const controller = new AbortController();
     let cancelled = false;
-    loadChannelVideoIds(media, controller.signal, { shuffle: shuffleVideos })
+    loadChannelVideoIds(
+      { channel, exclude: excludeRef.current },
+      controller.signal,
+      { shuffle: shuffleVideos },
+    )
       .then(ids => {
         if (!cancelled) {
           setVideoIds(ids);
@@ -59,7 +71,7 @@ export function MainStage({
       cancelled = true;
       controller.abort();
     };
-  }, [media, shuffleVideos]);
+  }, [channel, excludeKey, shuffleVideos]);
 
   // Chrome hiding can move D-pad focus. Put it back on the stage so the
   // video stays unmuted until the viewer arrows away.

@@ -6,13 +6,25 @@ The UI is a configurable hotel layout: header, D-pad menu, featured stage, now p
 
 Apple TV runs the same UI. The Discover stage uses a native player there because tvOS has no WebKit. Android TV still uses the WebView. Installed-app launch and the settings photo gallery stay on Android TV.
 
+## Screenshots
+
+Discover, with the featured stage, now playing panel, and promo banner.
+
+![Discover](docs/screenshots/discover.png)
+
+Stream, with Bonkflix focused.
+
+![Stream with Bonkflix focused](docs/screenshots/stream-bonkflix.png)
+
+Stream, with DogeTube focused.
+
+![Stream with DogeTube focused](docs/screenshots/stream-dogetube.png)
+
 ## Requirements
 
 - Node.js 20+
 - Android SDK with an Android TV system image, or a TV in developer mode
 - `adb` on `PATH`
-
-`ANDROID_HOME` was not set when this project was created. Install the SDK before `npm run android`.
 
 ## Run
 
@@ -45,9 +57,13 @@ To restore the stock launcher, hold the remote Home button, or open Settings, Ap
 
 Up and Down move through the menu. Select opens a section. Back returns to Discover.
 
-## Not in this build
+## Feature Progress
 
 - Discover streams a YouTube channel (WebView on Android TV, native player on Apple TV)
+- Basic App launcher
+- Persistent settings (Async Storage)
+
+## Planned Features
+
 - Installed streaming-app discovery
 - Sony tuner, HDMI, boot, or volume hooks
-- Persistent settings

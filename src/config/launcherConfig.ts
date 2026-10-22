@@ -42,7 +42,7 @@ export const launcherConfig: LauncherConfig = {
     {
       id: 'discoverChannel',
       label: 'Discover Channel',
-      value: 'https://www.youtube.com/@username',
+      value: '',
     },
     { id: 'weather', label: 'Weather', value: 'Placeholder' },
   ],

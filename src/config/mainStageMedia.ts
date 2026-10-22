@@ -87,9 +87,10 @@ function readRawMainStageMedia(): unknown {
 
 /**
  * Local override for the Discover stage.
- * A later settings screen should pass MainStageMediaConfig in instead of
- * reading this file. The file is gitignored so a property's channel stays
- * off the repo; with nothing set, the stage stays on its static layout.
+ * Settings seeds Discover Channel from this channel, then playback follows
+ * the saved field. Exclusions still come from this file. The file is
+ * gitignored so a property's channel stays off the repo; with nothing set,
+ * the stage stays on its static layout.
  */
 export function loadMainStageMediaConfig(): MainStageMediaConfig {
   if (cached == null) {

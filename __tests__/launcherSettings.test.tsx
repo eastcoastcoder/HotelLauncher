@@ -1,3 +1,4 @@
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import ReactTestRenderer from 'react-test-renderer';
 import ReactNativeBlobUtil from 'react-native-blob-util';
 import App from '../App';
@@ -5,6 +6,7 @@ import {
   launcherConfig,
   welcomeMessageForGuest,
 } from '../src/config/launcherConfig';
+import { loadMainStageMediaConfig } from '../src/config/mainStageMedia';
 import { importHotelLogo, logoFileExtension } from '../src/services/hotelLogo';
 import {
   defaultLauncherSettings,
@@ -12,7 +14,7 @@ import {
 } from '../src/services/launcherSettings';
 
 jest.mock('../src/config/mainStageMedia', () => ({
-  loadMainStageMediaConfig: () => ({ channel: '', exclude: [] }),
+  loadMainStageMediaConfig: jest.fn(() => ({ channel: '', exclude: [] })),
 }));
 
 jest.mock('react-native-webview', () => {
@@ -21,6 +23,56 @@ jest.mock('react-native-webview', () => {
   return {
     WebView: (props: object) => ReactLib.createElement(View, props),
   };
+});
+
+const STAGE_CHANNEL = 'http://youtube.com/@hotelchannel';
+
+afterEach(() => {
+  jest.mocked(loadMainStageMediaConfig).mockReturnValue({
+    channel: '',
+    exclude: [],
+  });
+});
+
+test('discover channel starts as the channel read for the stage', async () => {
+  jest.mocked(loadMainStageMediaConfig).mockReturnValue({
+    channel: `  ${STAGE_CHANNEL}  `,
+    exclude: ['ADdXw-HMnwc'],
+  });
+
+  expect(defaultLauncherSettings().discoverChannel).toBe(STAGE_CHANNEL);
+
+  const replaced = mergeLauncherSettings({
+    guestName: 'Ava',
+    discoverChannel: 'https://www.youtube.com/@username',
+  });
+  expect(replaced.guestName).toBe('Ava');
+  expect(replaced.discoverChannel).toBe(STAGE_CHANNEL);
+
+  const kept = mergeLauncherSettings({
+    discoverChannel: 'https://www.youtube.com/@otherchannel',
+  });
+  expect(kept.discoverChannel).toBe('https://www.youtube.com/@otherchannel');
+
+  const cleared = mergeLauncherSettings({ discoverChannel: '' });
+  expect(cleared.discoverChannel).toBe('');
+
+  await AsyncStorage.clear();
+  let renderer: ReactTestRenderer.ReactTestRenderer;
+  await ReactTestRenderer.act(() => {
+    renderer = ReactTestRenderer.create(<App />);
+  });
+  await ReactTestRenderer.act(() => {
+    controlsFor(renderer!, 'Settings').props.onPress();
+  });
+  expect(
+    renderer!.root.findByProps({ testID: 'setting-discoverChannel' }).props
+      .value,
+  ).toBe(STAGE_CHANNEL);
+
+  await ReactTestRenderer.act(() => {
+    renderer!.unmount();
+  });
 });
 
 test('welcome message fills the guest name from settings', () => {
@@ -133,6 +185,11 @@ test('a guest name edit updates the welcome line', async () => {
   expect(settingsFocus.findByProps({ testID: 'setting-guestName' })).toBe(
     input,
   );
+  expect(
+    renderer!.root
+      .findByProps({ testID: 'screen-scroll' })
+      .findByProps({ testID: 'setting-guestName' }),
+  ).toBe(input);
 
   const shuffle = renderer!.root.findByProps({
     testID: 'setting-shuffle-videos',

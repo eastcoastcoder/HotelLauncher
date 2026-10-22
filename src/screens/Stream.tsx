@@ -382,8 +382,31 @@ export function Stream({ screen }: { screen: ScreenId }) {
   const dialogMode =
     pickerKind === 'add' ? 'add' : pickerKind === 'added' ? 'added' : 'override';
 
+  const dialog =
+    pickerKind === 'hidden' ? (
+      <HiddenAppsDialog
+        items={hiddenRows}
+        armed={dialogArmed}
+        onRestore={onRestore}
+        onClose={closePicker}
+      />
+    ) : pickerItem ? (
+      <CustomAppDialog
+        item={pickerItem}
+        apps={apps}
+        status={appsStatus}
+        armed={dialogArmed}
+        mode={dialogMode}
+        onChoose={onChoose}
+        onClear={pickerKind === 'default' ? onClear : undefined}
+        onHide={pickerKind === 'default' ? onHide : undefined}
+        onRemove={pickerKind === 'added' ? onRemove : undefined}
+        onClose={closePicker}
+      />
+    ) : null;
+
   return (
-    <Panel>
+    <Panel overlay={dialog}>
       <View style={styles.row}>
         <Navigation
           active={screen}
@@ -399,28 +422,6 @@ export function Stream({ screen }: { screen: ScreenId }) {
         />
         <StreamPoster menuItemId={hoveredMenuItemId} />
       </View>
-      {pickerKind === 'hidden' ? (
-        <HiddenAppsDialog
-          items={hiddenRows}
-          armed={dialogArmed}
-          onRestore={onRestore}
-          onClose={closePicker}
-        />
-      ) : null}
-      {pickerItem && pickerKind !== 'hidden' ? (
-        <CustomAppDialog
-          item={pickerItem}
-          apps={apps}
-          status={appsStatus}
-          armed={dialogArmed}
-          mode={dialogMode}
-          onChoose={onChoose}
-          onClear={pickerKind === 'default' ? onClear : undefined}
-          onHide={pickerKind === 'default' ? onHide : undefined}
-          onRemove={pickerKind === 'added' ? onRemove : undefined}
-          onClose={closePicker}
-        />
-      ) : null}
     </Panel>
   );
 }

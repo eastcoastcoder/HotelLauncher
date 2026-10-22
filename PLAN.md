@@ -103,7 +103,7 @@ Main stage streams recent uploads from a YouTube channel. Copy `src/config/mainS
 - `channel`: channel URL, `@handle`, or channel id. For example `http://youtube.com/@hotelchannel`.
 - `exclude`: video ids to skip. `https://www.youtube.com/watch?v=ADdXw-HMnwc` is entered as `ADdXw-HMnwc`.
 
-Playback streams one video at a time in a WebView, then advances. It does not download the catalog. The config object is the seam for a later settings screen, which should pass the same channel and exclude list instead of a source edit.
+Playback streams one video at a time in a WebView, then advances. It does not download the catalog. Settings → Discover Channel starts as this file's `channel` and then drives playback. Exclusions still come from the file. Do not edit `mainStage.local.json` to change the channel.
 
 ### Phase 4 — Sony
 

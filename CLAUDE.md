@@ -92,7 +92,7 @@ On tvOS there is no `InstalledApps` module. Missing native module must leave ove
 
 ## Settings and other persistence
 
-Text settings are Guest Name, Discover Channel, and Weather. They persist as one JSON object in AsyncStorage key `launcher_settings` (`src/services/launcherSettings.ts`). There is no settings Kotlin module. Discover Channel and Weather are stored only. They do not yet change the stage or the weather readout. Welcome text is `welcomeMessageForGuest` over `"Good Evening, {guestName}"`. A blank name leaves `"Good Evening"`.
+Text settings are Guest Name, Discover Channel, and Weather. They persist as one JSON object in AsyncStorage key `launcher_settings` (`src/services/launcherSettings.ts`). There is no settings Kotlin module. Discover Channel starts as the channel read from `mainStage.local.json` (or the example file when that override is missing). A saved channel replaces it for Discover playback. The exclude list still comes from that file. The old placeholder `https://www.youtube.com/@username` is unset. A blank Discover Channel keeps the stage static. Weather is stored only and does not change the weather readout. Welcome text is `welcomeMessageForGuest` over `"Good Evening, {guestName}"`. A blank name leaves `"Good Evening"`.
 
 Hotel Logo is a gallery pick (`react-native-image-picker` plus `react-native-blob-util`), copied to `DocumentDir`. Only `logoPath` is stored. The header falls back to the bundled logo. Those libraries are Android-only. Settings on Apple TV uses `TvAsyncStorage` (`ios/HotelLauncher/TvAsyncStorage.m`), registered as `RNAsyncStorage`.
 
