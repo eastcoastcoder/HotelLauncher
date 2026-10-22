@@ -19,7 +19,8 @@ import { type } from '../theme/typography';
 import { ScreenId, SettingId } from '../types';
 
 export function Settings({}: { screen?: ScreenId }) {
-  const { values, setValue, setLogoPath } = useLauncherSettings();
+  const { values, setValue, setLogoPath, setShuffleVideos } =
+    useLauncherSettings();
   const appleTv = Platform.OS === 'ios' && Platform.isTV;
   const [picking, setPicking] = useState(false);
   const [logoError, setLogoError] = useState<string | null>(null);
@@ -105,6 +106,18 @@ export function Settings({}: { screen?: ScreenId }) {
           {logoError != null ? (
             <Text style={styles.error}>{logoError}</Text>
           ) : null}
+        </View>
+        <View style={styles.field}>
+          <Text style={styles.label}>Shuffle videos</Text>
+          <Focusable
+            onPress={() => setShuffleVideos(!values.shuffleVideos)}
+            testID="setting-shuffle-videos"
+            style={styles.action}
+          >
+            <Text style={styles.actionText}>
+              {values.shuffleVideos ? 'On' : 'Off'}
+            </Text>
+          </Focusable>
         </View>
         {launcherConfig.settings.map(item => {
           const mode = inputMode(item.id);

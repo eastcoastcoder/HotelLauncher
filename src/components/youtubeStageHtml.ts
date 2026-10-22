@@ -39,12 +39,17 @@ export function isStageRequestAllowed(url: string): boolean {
 }
 
 /**
- * One page that streams the channel. The list is shuffled, then each video
- * plays through. Nothing is downloaded ahead of time.
+ * One page that streams the channel. With shuffle on, the list is shuffled,
+ * then each video plays through, and a finished pass is shuffled again.
+ * Nothing is downloaded ahead of time.
  * The document is locked to the viewport so the WebView cannot scroll.
  */
-export function buildYouTubeStageHtml(videoIds: readonly string[]): string {
+export function buildYouTubeStageHtml(
+  videoIds: readonly string[],
+  options?: { shuffle?: boolean },
+): string {
   const ids = videoIds.filter(isYouTubeVideoId);
+  const shuffleOn = options?.shuffle !== false;
   if (ids.length === 0) {
     throw new Error('No playable YouTube video ids');
   }
@@ -95,6 +100,7 @@ export function buildYouTubeStageHtml(videoIds: readonly string[]): string {
       var player = null;
       var watch = null;
       var wantMuted = true;
+      var shuffleOn = ${shuffleOn ? 'true' : 'false'};
       function shuffle(list) {
         for (var i = list.length - 1; i > 0; i--) {
           var j = Math.floor(Math.random() * (i + 1));
@@ -103,7 +109,9 @@ export function buildYouTubeStageHtml(videoIds: readonly string[]): string {
           list[j] = swap;
         }
       }
-      shuffle(ids);
+      if (shuffleOn) {
+        shuffle(ids);
+      }
       function post(message) {
         if (window.ReactNativeWebView) {
           window.ReactNativeWebView.postMessage(message);
@@ -196,12 +204,14 @@ export function buildYouTubeStageHtml(videoIds: readonly string[]): string {
         var ended = ids[index];
         index += 1;
         if (index >= ids.length) {
-          shuffle(ids);
           index = 0;
-          if (ids.length > 1 && ids[0] === ended) {
-            var swap = ids[0];
-            ids[0] = ids[1];
-            ids[1] = swap;
+          if (shuffleOn) {
+            shuffle(ids);
+            if (ids.length > 1 && ids[0] === ended) {
+              var swap = ids[0];
+              ids[0] = ids[1];
+              ids[1] = swap;
+            }
           }
         }
         playCurrent();

@@ -7,12 +7,17 @@ const STORAGE_KEY = 'launcher_settings';
 export type LauncherSettingValues = Record<SettingId, string> & {
   /** Absolute path of a copied gallery logo. Null uses the bundled logo. */
   logoPath: string | null;
+  /** Randomize Discover channel videos. Off keeps channel-page order. */
+  shuffleVideos: boolean;
 };
 
-type EditedSetting = SettingId | 'logoPath';
+type EditedSetting = SettingId | 'logoPath' | 'shuffleVideos';
 
 export function defaultLauncherSettings(): LauncherSettingValues {
-  const values = { logoPath: null } as LauncherSettingValues;
+  const values = {
+    logoPath: null,
+    shuffleVideos: true,
+  } as LauncherSettingValues;
   for (const item of launcherConfig.settings) {
     values[item.id] = item.value;
   }
@@ -25,6 +30,7 @@ export function sameLauncherSettings(
 ): boolean {
   return (
     left.logoPath === right.logoPath &&
+    left.shuffleVideos === right.shuffleVideos &&
     launcherConfig.settings.every(item => left[item.id] === right[item.id])
   );
 }
@@ -57,6 +63,11 @@ export function mergeLauncherSettings(
     next.logoPath = current.logoPath;
   } else if (typeof record.logoPath === 'string' && record.logoPath.trim() !== '') {
     next.logoPath = record.logoPath;
+  }
+  if (edited.has('shuffleVideos')) {
+    next.shuffleVideos = current.shuffleVideos;
+  } else if (typeof record.shuffleVideos === 'boolean') {
+    next.shuffleVideos = record.shuffleVideos;
   }
   return next;
 }

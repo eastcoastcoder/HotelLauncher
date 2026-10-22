@@ -1,3 +1,4 @@
+import { shuffleIds } from '../components/youtubeStagePlaylist';
 import {
   isYouTubeVideoId,
   MainStageMediaConfig,
@@ -83,9 +84,26 @@ export function filterExcludedVideoIds(
   return ids.filter(id => isYouTubeVideoId(id) && !skip.has(id));
 }
 
+export type LoadChannelVideoIdsOptions = {
+  /** When false, ids stay in channel-page order. Defaults to shuffled. */
+  shuffle?: boolean;
+  random?: () => number;
+};
+
+function finishChannelVideoIds(
+  ids: readonly string[],
+  options?: LoadChannelVideoIdsOptions,
+): string[] {
+  if (options?.shuffle === false) {
+    return [...ids];
+  }
+  return shuffleIds(ids, options?.random);
+}
+
 export async function loadChannelVideoIds(
   config: MainStageMediaConfig,
   signal?: AbortSignal,
+  options?: LoadChannelVideoIdsOptions,
 ): Promise<string[]> {
   const pageUrl = channelVideosPageUrl(config.channel);
   if (!pageUrl) {
@@ -94,7 +112,7 @@ export async function loadChannelVideoIds(
 
   const key = `${pageUrl}\n${config.exclude.join(',')}`;
   if (playlistCache?.key === key) {
-    return playlistCache.ids;
+    return finishChannelVideoIds(playlistCache.ids, options);
   }
 
   const response = await fetch(pageUrl, {
@@ -110,5 +128,5 @@ export async function loadChannelVideoIds(
     config.exclude,
   );
   playlistCache = { key, ids };
-  return ids;
+  return finishChannelVideoIds(ids, options);
 }

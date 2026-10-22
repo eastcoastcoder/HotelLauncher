@@ -37,26 +37,40 @@ test('saved settings overlay defaults and keep an in-progress edit', () => {
   const defaults = defaultLauncherSettings();
   expect(defaults.guestName).toBe('Guest');
   expect(defaults.logoPath).toBeNull();
+  expect(defaults.shuffleVideos).toBe(true);
 
   const stored = mergeLauncherSettings({
     guestName: 'Ava',
     discoverChannel: '',
     logoPath: '/data/hotel-launcher/hotel-logo.png',
+    shuffleVideos: false,
     hotelLogo: 12,
     ignored: 'nope',
   });
   expect(stored.guestName).toBe('Ava');
   expect(stored.discoverChannel).toBe('');
   expect(stored.logoPath).toBe('/data/hotel-launcher/hotel-logo.png');
+  expect(stored.shuffleVideos).toBe(false);
   expect(stored.weather).toBe(defaults.weather);
 
   const edited = mergeLauncherSettings(
-    { guestName: 'Stored', weather: 'Rain', logoPath: '/stored.png' },
-    { ...defaults, guestName: 'Typing', logoPath: '/typing.png' },
-    new Set(['guestName', 'logoPath']),
+    {
+      guestName: 'Stored',
+      weather: 'Rain',
+      logoPath: '/stored.png',
+      shuffleVideos: false,
+    },
+    {
+      ...defaults,
+      guestName: 'Typing',
+      logoPath: '/typing.png',
+      shuffleVideos: true,
+    },
+    new Set(['guestName', 'logoPath', 'shuffleVideos']),
   );
   expect(edited.guestName).toBe('Typing');
   expect(edited.logoPath).toBe('/typing.png');
+  expect(edited.shuffleVideos).toBe(true);
   expect(edited.weather).toBe('Rain');
 });
 
@@ -119,6 +133,19 @@ test('a guest name edit updates the welcome line', async () => {
   expect(settingsFocus.findByProps({ testID: 'setting-guestName' })).toBe(
     input,
   );
+
+  const shuffle = renderer!.root.findByProps({
+    testID: 'setting-shuffle-videos',
+  });
+  expect(shuffle.findByProps({ children: 'On' })).toBeTruthy();
+  await ReactTestRenderer.act(() => {
+    shuffle.props.onPress();
+  });
+  expect(
+    renderer!.root
+      .findByProps({ testID: 'setting-shuffle-videos' })
+      .findByProps({ children: 'Off' }),
+  ).toBeTruthy();
 
   await ReactTestRenderer.act(() => {
     input.props.onChangeText('Ava');

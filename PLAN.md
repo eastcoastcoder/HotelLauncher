@@ -172,6 +172,40 @@ tvOS has no WebKit. `youtube-ios-player-helper` is an iOS WebView wrapper (`s.pl
 
 Do not add the Android YouTube player library. The A90K sideload stays on the WebView.
 
+- [ ] Apple TV Menu (the remote Back button) dismisses a dialog, leaves Discover fullscreen, and leaves a nested menu before it can exit the app. See Apple TV Menu button.
+
+#### Apple TV Menu button
+
+The Siri Remote Menu button exits HotelLauncher. It does not dismiss a dialog, leave Discover fullscreen, or leave a nested menu.
+
+Those paths listen only to `BackHandler` `hardwareBackPress`, which this button does not send. `TVApp` uses that listener to leave fullscreen, then to return to Discover, then to allow exit. `CustomAppDialog` and `HiddenAppsDialog` `BackClose` use it to close without saving. tvOS gives Menu to the system unless the app is listening. `RCTTVRemoteHandler` starts with `__useMenuKey` off, so `TVEventControl.enableTVMenuKey()` has never run, the Menu recognizer is not attached, and tvOS exits the app. A long Menu press stays with the system and opens the Apple TV home screen. Do not intercept that.
+
+Once the app is listening, one Menu press handles the first match and stops:
+
+1. An open dialog closes. Nothing is saved.
+2. Discover fullscreen ends and focus returns to the stage.
+3. Focus inside a Stream, My Media, or Hotel Info submenu returns to the main-menu row that opened that screen. That is the same row Left already targets through `NavReturn`. It does not jump to Discover.
+4. A main-menu row on any screen other than Discover returns to Discover.
+5. On Discover, with no dialog and no fullscreen, Menu exits the app.
+
+Android Back keeps its current `BackHandler` behavior. This item does not change the A90K.
+
+This item is done when the Apple TV simulator Menu button follows that order.
+
+- [ ] Apple TV layout is about half the size of the Android TV layout on the same screen. Scale tvOS to the Android dp canvas. See Apple TV scale.
+
+#### Apple TV scale
+
+On the Apple TV simulator, type, nav, padding, and chrome are tiny next to the A90K. Android is the reference and stays as it is.
+
+This is a known platform difference, not a HotelLauncher regression. [react-native-tvos#57](https://github.com/react-native-tvos/react-native-tvos/issues/57) and [discussion #604](https://github.com/react-native-tvos/react-native-tvos/discussions/604) record it: `Dimensions` on Apple TV is 1920×1080 points, including Apple TV 4K. Android TV, Fire TV, and a Sony BRAVIA report about 960×540 at scale 2. The same style numbers are about half as large, relative to the screen, on Apple TV. The maintainer treats it as pixel density. React Native TV will not make the two windows match.
+
+The A90K check uses a `wm` override of 1920×1080 at density 320, which is that 960×540 dp window. Nav width, `src/theme/typography.ts`, and the other raw `StyleSheet` numbers were written for it. There is no shared scale helper. Apple TV 4K reports `PixelRatio` 2, and so does the A90K, so scaling by pixel ratio would double Android as well.
+
+When this is implemented, one tvOS scale of about `1920 / 960` applies to layout sizes and font sizes. Android scale stays 1. Do not change `wm` density or `PixelRatio` on the A90K. Do not add a scaling dependency.
+
+This item is done when the Apple TV simulator shows the same relative sizes as the Android TV layout, and the A90K layout is unchanged.
+
 This is done when the Apple TV simulator launches HotelLauncher and the A90K app still launches.
 
 ## Run

@@ -18,6 +18,8 @@ import { advancePlaylist, shuffleIds } from './youtubeStagePlaylist';
 
 interface YouTubeStageProps {
   videoIds: readonly string[];
+  /** When false, play the given order and loop it without reshuffling. */
+  shuffle: boolean;
   muted: boolean;
   onPlaying: () => void;
   onFatal: () => void;
@@ -25,6 +27,7 @@ interface YouTubeStageProps {
 
 export function YouTubeStage({
   videoIds,
+  shuffle,
   muted,
   onPlaying,
   onFatal,
@@ -35,6 +38,7 @@ export function YouTubeStage({
     return (
       <YouTubeTvStage
         videoIds={videoIds}
+        shuffle={shuffle}
         muted={muted}
         onPlaying={onPlaying}
         onFatal={onFatal}
@@ -45,6 +49,7 @@ export function YouTubeStage({
   return (
     <YouTubeWebStage
       videoIds={videoIds}
+      shuffle={shuffle}
       muted={muted}
       onPlaying={onPlaying}
       onFatal={onFatal}
@@ -56,6 +61,7 @@ const STALL_MS = 45000;
 
 function YouTubeTvStage({
   videoIds,
+  shuffle,
   muted,
   onPlaying,
   onFatal,
@@ -99,18 +105,24 @@ function YouTubeTvStage({
       } else {
         failures.current = 0;
       }
-      const next = advancePlaylist(current, indexRef.current);
+      const next = advancePlaylist(
+        current,
+        indexRef.current,
+        Math.random,
+        shuffle,
+      );
       orderRef.current = next.ids;
       indexRef.current = next.index;
       setOrder(next.ids);
       setIndex(next.index);
     },
-    [],
+    [shuffle],
   );
 
   useEffect(() => {
     failures.current = 0;
-    const next = shuffleIds(playableKey === '' ? [] : playableKey.split('\n'));
+    const source = playableKey === '' ? [] : playableKey.split('\n');
+    const next = shuffle ? shuffleIds(source) : source;
     orderRef.current = next;
     indexRef.current = 0;
     setOrder(next);
@@ -118,7 +130,7 @@ function YouTubeTvStage({
     if (next.length === 0) {
       onFatalRef.current();
     }
-  }, [playableKey]);
+  }, [playableKey, shuffle]);
 
   const videoId = order[index] ?? '';
 
@@ -167,12 +179,16 @@ function YouTubeTvStage({
 
 function YouTubeWebStage({
   videoIds,
+  shuffle,
   muted,
   onPlaying,
   onFatal,
 }: YouTubeStageProps) {
   const { WebView } = require('react-native-webview') as typeof import('react-native-webview');
-  const html = useMemo(() => buildYouTubeStageHtml(videoIds), [videoIds]);
+  const html = useMemo(
+    () => buildYouTubeStageHtml(videoIds, { shuffle }),
+    [videoIds, shuffle],
+  );
   const webRef = useRef<ComponentRef<typeof WebView>>(null);
   const mutedRef = useRef(muted);
   mutedRef.current = muted;

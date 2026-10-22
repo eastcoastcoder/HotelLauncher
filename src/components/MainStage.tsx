@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { StyleSheet, Text, TVFocusGuideView, View } from 'react-native';
 import { launcherConfig } from '../config/launcherConfig';
 import { loadMainStageMediaConfig } from '../config/mainStageMedia';
+import { useLauncherSettings } from '../context/LauncherSettingsContext';
 import { loadChannelVideoIds } from '../services/youtubeChannel';
 import { colors } from '../theme/colors';
 import { type } from '../theme/typography';
@@ -21,6 +22,8 @@ export function MainStage({
 }: Props) {
   const stage = launcherConfig.mainStage;
   const media = loadMainStageMediaConfig();
+  const { values } = useLauncherSettings();
+  const shuffleVideos = values.shuffleVideos;
   const [videoIds, setVideoIds] = useState<string[] | null>(null);
   const [playing, setPlaying] = useState(false);
   const [focused, setFocused] = useState(false);
@@ -35,7 +38,7 @@ export function MainStage({
 
     const controller = new AbortController();
     let cancelled = false;
-    loadChannelVideoIds(media, controller.signal)
+    loadChannelVideoIds(media, controller.signal, { shuffle: shuffleVideos })
       .then(ids => {
         if (!cancelled) {
           setVideoIds(ids);
@@ -51,7 +54,7 @@ export function MainStage({
       cancelled = true;
       controller.abort();
     };
-  }, [media]);
+  }, [media, shuffleVideos]);
 
   // Chrome hiding can move D-pad focus. Put it back on the stage so the
   // video stays unmuted until the viewer arrows away.
@@ -86,6 +89,7 @@ export function MainStage({
       {showPlayer ? (
         <YouTubeStage
           videoIds={playlist}
+          shuffle={shuffleVideos}
           muted={!audible}
           onPlaying={() => setPlaying(true)}
           onFatal={() => {

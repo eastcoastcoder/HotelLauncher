@@ -18,12 +18,13 @@ import {
 } from '../services/launcherSettings';
 import { SettingId } from '../types';
 
-type EditedSetting = SettingId | 'logoPath';
+type EditedSetting = SettingId | 'logoPath' | 'shuffleVideos';
 
 type LauncherSettingsController = {
   values: LauncherSettingValues;
   setValue: (id: SettingId, value: string) => void;
   setLogoPath: (path: string | null) => void;
+  setShuffleVideos: (shuffle: boolean) => void;
 };
 
 const LauncherSettingsContext =
@@ -93,9 +94,24 @@ export function LauncherSettingsProvider({
     [write],
   );
 
+  const setShuffleVideos = useCallback(
+    (shuffle: boolean) => {
+      edited.current.add('shuffleVideos');
+      setValues(current => {
+        if (current.shuffleVideos === shuffle) {
+          return current;
+        }
+        const next = { ...current, shuffleVideos: shuffle };
+        write(next);
+        return next;
+      });
+    },
+    [write],
+  );
+
   const api = useMemo(
-    () => ({ values, setValue, setLogoPath }),
-    [values, setValue, setLogoPath],
+    () => ({ values, setValue, setLogoPath, setShuffleVideos }),
+    [values, setValue, setLogoPath, setShuffleVideos],
   );
 
   return (

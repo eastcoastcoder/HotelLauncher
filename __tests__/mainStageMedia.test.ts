@@ -10,6 +10,7 @@ import {
 import {
   channelVideosPageUrl,
   filterExcludedVideoIds,
+  loadChannelVideoIds,
   videoIdsFromChannelHtml,
 } from '../src/services/youtubeChannel';
 
@@ -81,6 +82,7 @@ test('stage document shuffles the channel, stays quiet until unmuted, and cannot
   expect(html).toContain('1QeXb2Caf0s');
   expect(html).toContain('https://www.youtube.com/iframe_api');
   expect(html).toContain('function shuffle');
+  expect(html).toContain('var shuffleOn = true');
   expect(html).toContain('Math.random');
   expect(html).toContain('setStageMuted');
   expect(html).toContain('overflow: hidden');
@@ -88,9 +90,57 @@ test('stage document shuffles the channel, stays quiet until unmuted, and cannot
   expect(html.indexOf('shuffle(ids)')).toBeLessThan(html.indexOf('new YT.Player'));
   expect(html).not.toContain('(index + 1) % ids.length');
   expect(html).not.toContain('ADdXw-HMnwc');
+  const ordered = buildYouTubeStageHtml(
+    ['EBBcMKXSdhU', '1QeXb2Caf0s'],
+    { shuffle: false },
+  );
+  expect(ordered).toContain('var shuffleOn = false');
+  expect(ordered).toContain('["EBBcMKXSdhU","1QeXb2Caf0s"]');
   expect(
     isStageRequestAllowed('https://www.youtube.com/embed/EBBcMKXSdhU'),
   ).toBe(true);
   expect(isStageRequestAllowed('https://com.hotellauncher/')).toBe(true);
   expect(isStageRequestAllowed('https://example.com/watch')).toBe(false);
+});
+
+test('loaded channel ids are shuffled unless shuffle is off', async () => {
+  const html = `
+    {"contentId":"EBBcMKXSdhU"}
+    {"contentId":"1QeXb2Caf0s"}
+    {"contentId":"ADdXw-HMnwc"}
+  `;
+  const original = global.fetch;
+  global.fetch = jest.fn(async () => ({
+    ok: true,
+    text: async () => html,
+  })) as typeof fetch;
+
+  try {
+    let n = 0;
+    const values = [0, 0];
+    const shuffled = await loadChannelVideoIds(
+      { channel: '@shufflechannel', exclude: [] },
+      undefined,
+      { random: () => values[n++] ?? 0 },
+    );
+    expect(shuffled).toEqual([
+      '1QeXb2Caf0s',
+      'ADdXw-HMnwc',
+      'EBBcMKXSdhU',
+    ]);
+
+    const ordered = await loadChannelVideoIds(
+      { channel: '@shufflechannel', exclude: [] },
+      undefined,
+      { shuffle: false },
+    );
+    expect(ordered).toEqual([
+      'EBBcMKXSdhU',
+      '1QeXb2Caf0s',
+      'ADdXw-HMnwc',
+    ]);
+    expect(global.fetch).toHaveBeenCalledTimes(1);
+  } finally {
+    global.fetch = original;
+  }
 });

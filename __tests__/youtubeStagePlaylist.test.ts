@@ -23,3 +23,10 @@ test('a wrapped deck does not start on the video that just ended', () => {
   expect(next.ids[0]).not.toBe('c');
   expect(next.ids).toHaveLength(3);
 });
+
+test('a wrapped deck keeps page order when shuffle is off', () => {
+  expect(advancePlaylist(['a', 'b', 'c'], 2, () => 0, false)).toEqual({
+    ids: ['a', 'b', 'c'],
+    index: 0,
+  });
+});
