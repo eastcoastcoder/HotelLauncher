@@ -17,8 +17,9 @@ type ShellSlideValue = {
 const ShellSlideContext = createContext<ShellSlideValue | null>(null);
 
 /**
- * Slides the launcher chrome (header, navigation, and the open screen) as one piece.
- * `setCover` paints the incoming screen above that chrome, outside the transform.
+ * Slides the launcher body (navigation and the open screen) as one piece.
+ * The header stays above this host. `setCover` paints the incoming screen
+ * above the body, outside the transform.
  */
 export function ShellSlideProvider({
   width,

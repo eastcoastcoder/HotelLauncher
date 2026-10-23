@@ -1,36 +1,47 @@
 import {
+  airingsFor,
   formatSlotLabel,
   guideChannels,
   initialWindowStart,
   minuteOfDay,
   nowFraction,
-  previewChannels,
   slotStarts,
-  slotTitle,
 } from '../src/screens/guideData';
 
-test('guide window opens on the half hour before now', () => {
+test('guide window opens on the current half hour', () => {
   const now = new Date(2026, 5, 1, 18, 30);
   const start = initialWindowStart(now);
   const slots = slotStarts(start);
 
   expect(slots.map(formatSlotLabel)).toEqual([
-    '6:00 PM',
-    '6:30 PM',
-    '7:00 PM',
-    '7:30 PM',
+    '6:30PM',
+    '7PM',
+    '7:30PM',
+    '8PM',
+    '8:30PM',
   ]);
-  expect(nowFraction(start, minuteOfDay(now))).toBe(0.25);
+  expect(nowFraction(start, minuteOfDay(now))).toBe(0);
 });
 
-test('hotel guide shows the current title and then YouTube', () => {
+test('hotel program fills the open window and YouTube follows it', () => {
   const now = new Date(2026, 5, 1, 18, 42);
-  const slots = slotStarts(initialWindowStart(now));
-  const hotel = previewChannels[0];
   const minute = minuteOfDay(now);
+  const start = initialWindowStart(now);
+  const hotel = guideChannels[0];
+  const airings = airingsFor(hotel, start, 5 * 30, minute);
 
-  expect(slotTitle(hotel, slots[1], minute)).toBe('Hotel Channel');
-  expect(slotTitle(hotel, slots[2], minute)).toBe('YouTube');
+  expect(airings[0]).toMatchObject({
+    title: 'Hotel Channel',
+    offset: 0,
+    minutes: 150,
+  });
+  expect(nowFraction(start, minute)).toBeCloseTo(12 / 150);
+
+  const shifted = airingsFor(hotel, (start + 30) % (24 * 60), 5 * 30, minute);
+  expect(shifted.map(airing => airing.title)).toEqual([
+    'Hotel Channel',
+    'YouTube',
+  ]);
   expect(guideChannels.map(channel => channel.name)).toEqual([
     'Hotel TV',
     'NBC',

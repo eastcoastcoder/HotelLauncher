@@ -333,14 +333,14 @@ const styles = StyleSheet.create({
     marginBottom: -24,
   },
   guideRoot: {
-    backgroundColor: '#07090D',
+    backgroundColor: '#000000',
   },
   fill: {
     flex: 1,
   },
   cover: {
     ...StyleSheet.absoluteFill,
-    backgroundColor: '#07090D',
+    backgroundColor: '#000000',
   },
   entry: {
     ...StyleSheet.absoluteFill,

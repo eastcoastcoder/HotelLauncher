@@ -18,6 +18,7 @@ export function TVApp() {
   const [screen, setScreen] = useState<ScreenId>('Discover');
   const [videoFullscreen, setVideoFullscreen] = useState(false);
   const showChrome = !videoFullscreen;
+  const showHeader = showChrome || screen === 'WatchTV';
   const screenBackground = useScreenBackground();
   const { width: windowWidth } = useWindowDimensions();
 
@@ -44,10 +45,8 @@ export function TVApp() {
       {screenBackground ? (
         <ScreenBackground background={screenBackground} />
       ) : null}
+      {showHeader ? <Header /> : null}
       <ShellSlideProvider width={windowWidth}>
-        <View style={showChrome ? undefined : styles.hidden}>
-          <Header />
-        </View>
         <View style={[styles.body, showChrome ? undefined : styles.bodyFull]}>
           <NavReturnProvider>
             <View style={showChrome ? undefined : styles.hidden}>

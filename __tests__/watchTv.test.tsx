@@ -60,8 +60,9 @@ test('sidebar state shows the guide grid', async () => {
 
   expect(renderer!.root.findByProps({ testID: 'watch-tv-preview' })).toBeTruthy();
   expect(renderer!.root.findByProps({ testID: 'watch-tv-preview-grid' })).toBeTruthy();
-  expect(renderer!.root.findByProps({ children: 'WATCH' })).toBeTruthy();
+  expect(renderer!.root.findByProps({ children: 'NOW' })).toBeTruthy();
   expect(renderer!.root.findByProps({ children: 'Hotel TV' })).toBeTruthy();
+  expect(renderer!.root.findByProps({ children: 'Hotel Channel' })).toBeTruthy();
   expect(renderer!.root.findByProps({ children: 'NBC' })).toBeTruthy();
   expect(renderer!.root.findAllByProps({ testID: 'watch-tv-grid' })).toHaveLength(0);
 
@@ -83,9 +84,9 @@ test('focus from the right opens the fullscreen guide and back returns', async (
   });
 
   expect(renderer!.root.findByProps({ testID: 'watch-tv-grid' })).toBeTruthy();
-  expect(renderer!.root.findByProps({ children: 'WATCH' })).toBeTruthy();
+  expect(renderer!.root.findByProps({ children: 'NOW' })).toBeTruthy();
   expect(renderer!.root.findByProps({ children: 'NBC' })).toBeTruthy();
-  expect(renderer!.root.findByProps({ children: 'YouTube' })).toBeTruthy();
+  expect(renderer!.root.findByProps({ children: 'Hotel Channel' })).toBeTruthy();
   expect(renderer!.root.findAllByProps({ testID: 'watch-tv-preview' })).toHaveLength(0);
 
   await ReactTestRenderer.act(() => {

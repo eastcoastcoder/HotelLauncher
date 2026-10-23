@@ -13,26 +13,25 @@ import { ChannelMark } from '../components/ChannelMark';
 import { Focusable } from '../components/Focusable';
 import { colors } from '../theme/colors';
 import {
-  formatClock,
+  airingsFor,
   formatSlotLabel,
   guideChannels,
+  initialWindowStart,
   minuteOfDay,
   nowFraction,
-  initialWindowStart,
   SLOT_COUNT,
   SLOT_MINUTES,
   slotContains,
   slotStarts,
-  slotTitle,
+  type GuideAiring,
   type GuideChannel,
 } from './guideData';
 
-const GRID_LINES = [0, 1, 2, 3, 4];
-const CHANNEL_COLUMN = 188;
+const CHANNEL_COLUMN = 236;
 const RULER_HEIGHT = 52;
-const ROW_HEIGHT = 64;
-const GRID_LINE = 'rgba(96, 156, 214, 0.72)';
-const NOW_LINE = '#8EBEFF';
+const ROW_HEIGHT = 72;
+const NOW_LINE = '#4C8DFF';
+const DAY_MINUTES = 24 * 60;
 
 type Props = {
   onClose?: () => void;
@@ -52,6 +51,7 @@ export function GuideGrid({
   );
   const [gridWidth, setGridWidth] = useState(0);
   const [pending, setPending] = useState<1 | -1 | 0>(0);
+  const [focusedId, setFocusedId] = useState(guideChannels[0]?.id ?? '');
   const slide = useRef(new Animated.Value(0)).current;
   const firstRowRef = useRef<View>(null);
   const onCloseRef = useRef(onClose);
@@ -136,7 +136,7 @@ export function GuideGrid({
         return;
       }
       setWindowStart(
-        current => (current + direction * SLOT_MINUTES + 24 * 60) % (24 * 60),
+        current => (current + direction * SLOT_MINUTES + DAY_MINUTES) % DAY_MINUTES,
       );
       slide.setValue(0);
       setPending(0);
@@ -150,26 +150,36 @@ export function GuideGrid({
   const minute = minuteOfDay(now);
   const extra = pending === 0 ? 0 : 1;
   const origin =
-    pending === -1 ? (windowStart - SLOT_MINUTES + 24 * 60) % (24 * 60) : windowStart;
-  const slots = slotStarts(origin, SLOT_COUNT + extra);
+    pending === -1
+      ? (windowStart - SLOT_MINUTES + DAY_MINUTES) % DAY_MINUTES
+      : windowStart;
+  const span = (SLOT_COUNT + extra) * SLOT_MINUTES;
   const visibleSlots = slotStarts(windowStart);
   const fraction = pending === 0 ? nowFraction(windowStart, minute) : null;
+  let nowDelta = minute - origin;
+  if (nowDelta < 0) {
+    nowDelta += DAY_MINUTES;
+  }
+  const nowOffset = nowDelta < span ? nowDelta : null;
+  const nowLabelOffset =
+    gridWidth > 0 ? Math.max(0, fraction == null ? 0 : fraction * gridWidth - 34) : 0;
+  const nowLabelPosition = { left: nowLabelOffset };
+  const nowLineStyle = {
+    left: CHANNEL_COLUMN + (fraction ?? 0) * gridWidth,
+    height: guideChannels.length * ROW_HEIGHT,
+  };
 
   const frame = (
     <View style={styles.fill} testID={testID}>
-      <View style={styles.header}>
-        <View>
-          <Text style={styles.brandSmall}>Hotel</Text>
-          <Text style={styles.brandLarge}>TV</Text>
-        </View>
-        <Text style={styles.clock}>{formatClock(now)}</Text>
-      </View>
       <View style={styles.ruler}>
-        <View style={styles.modeCol}>
-          <Text style={styles.watch}>WATCH</Text>
-          <Text style={styles.dvr}>DVR</Text>
-        </View>
-        <View style={styles.rulerSlots}>
+        <View style={styles.channelSpacer} />
+        <View
+          style={styles.rulerSlots}
+          onLayout={event => {
+            const next = Math.round(event.nativeEvent.layout.width);
+            setGridWidth(current => (current === next ? current : next));
+          }}
+        >
           {visibleSlots.map(slot => {
             const current = slotContains(slot, minute);
             return (
@@ -177,42 +187,32 @@ export function GuideGrid({
                 <Text style={[styles.slotLabel, current && styles.slotLabelNow]}>
                   {formatSlotLabel(slot)}
                 </Text>
-                {current ? <View style={styles.underline} /> : null}
               </View>
             );
           })}
-          {GRID_LINES.map(line => (
-            <View
-              key={line}
+          {fraction != null ? (
+            <Text
               pointerEvents="none"
-              style={[styles.gridLine, { left: `${line * 25}%` }]}
-            />
-          ))}
-          {fraction != null && gridWidth > 0 ? (
-            <View
-              pointerEvents="none"
-              style={[styles.nowTick, { left: fraction * gridWidth }]}
-            />
+              style={[styles.nowLabel, nowLabelPosition]}
+            >
+              NOW
+            </Text>
           ) : null}
         </View>
       </View>
       <View style={styles.rows}>
         {guideChannels.map((channel, index) => {
+          const focused = interactive && channel.id === focusedId;
           const strip = (
             <GuideStrip
               channel={channel}
-              slots={slots}
+              origin={origin}
+              span={span}
               minute={minute}
-              gridWidth={gridWidth}
+              nowOffset={nowOffset}
               slide={slide}
-              fraction={fraction}
-              onMeasure={
-                index === 0
-                  ? next => {
-                      setGridWidth(current => (current === next ? current : next));
-                    }
-                  : undefined
-              }
+              focused={focused}
+              open={interactive}
             />
           );
           if (!interactive) {
@@ -234,11 +234,19 @@ export function GuideGrid({
               hasTVPreferredFocus={index === 0 ? true : undefined}
               style={styles.row}
               focusedStyle={styles.rowFocused}
+              onFocusChange={next => {
+                if (next) {
+                  setFocusedId(channel.id);
+                }
+              }}
             >
               {strip}
             </Focusable>
           );
         })}
+        {fraction != null && gridWidth > 0 ? (
+          <View pointerEvents="none" style={[styles.nowLine, nowLineStyle]} />
+        ) : null}
       </View>
     </View>
   );
@@ -262,113 +270,102 @@ export function GuideGrid({
 
 function GuideStrip({
   channel,
-  slots,
+  origin,
+  span,
   minute,
-  gridWidth,
+  nowOffset,
   slide,
-  fraction,
-  onMeasure,
+  focused,
+  open,
 }: {
   channel: GuideChannel;
-  slots: number[];
+  origin: number;
+  span: number;
   minute: number;
-  gridWidth: number;
+  nowOffset: number | null;
   slide: Animated.Value;
-  fraction: number | null;
-  onMeasure?: (width: number) => void;
+  focused: boolean;
+  open: boolean;
 }) {
+  const airings = airingsFor(channel, origin, span, minute);
+  const selected = focused ? selectedAiring(airings, nowOffset) : null;
+  const windowMinutes = SLOT_COUNT * SLOT_MINUTES;
+  const stripStyle = {
+    width: `${(span / windowMinutes) * 100}%`,
+    transform: [{ translateX: slide }],
+  };
+
   return (
     <>
-      <View style={styles.channelCol}>
-        {channel.mark === 'hotel' ? null : (
-          <ChannelMark mark={channel.mark} size={28} />
-        )}
+      <View style={[styles.channelCol, open && styles.channelColOpen]}>
+        <ChannelMark mark={channel.mark} size={28} />
+        <Text style={styles.channelNumber}>{channel.number}</Text>
         <Text style={styles.channelName} numberOfLines={1}>
           {channel.name}
         </Text>
       </View>
-      <View
-        style={styles.clip}
-        onLayout={
-          onMeasure == null
-            ? undefined
-            : event => {
-                onMeasure(Math.round(event.nativeEvent.layout.width));
-              }
-        }
-      >
+      <View style={styles.clip}>
         <Animated.View
-          style={[
-            styles.strip,
-            {
-              width:
-                gridWidth > 0
-                  ? (gridWidth / SLOT_COUNT) * slots.length
-                  : '100%',
-              transform: [{ translateX: slide }],
-            },
-          ]}
+          style={[styles.strip, stripStyle]}
         >
-          {slots.map(slot => (
-            <Cell
-              key={`${channel.id}-${slot}`}
-              channel={channel}
-              slot={slot}
-              minute={minute}
-              width={gridWidth > 0 ? gridWidth / SLOT_COUNT : undefined}
+          {airings.map(airing => (
+            <ProgramBlock
+              key={`${channel.id}-${airing.offset}-${airing.title}`}
+              airing={airing}
+              span={span}
+              selected={selected === airing}
             />
           ))}
         </Animated.View>
-        {fraction != null && gridWidth > 0 ? (
-          <View
-            pointerEvents="none"
-            style={[styles.nowLine, { left: fraction * gridWidth }]}
-          />
-        ) : null}
-        {GRID_LINES.map(line => (
-          <View
-            key={line}
-            pointerEvents="none"
-            style={[styles.gridLine, { left: `${line * 25}%` }]}
-          />
-        ))}
       </View>
     </>
   );
 }
 
-function Cell({
-  channel,
-  slot,
-  minute,
-  width,
-}: {
-  channel: GuideChannel;
-  slot: number;
-  minute: number;
-  width: number | undefined;
-}) {
-  const title = slotTitle(channel, slot, minute);
-  return (
-    <View style={[styles.cell, width != null ? { width } : styles.cellFlex]}>
-      {title === 'YouTube' ? (
-        <YouTubeBadge />
-      ) : title ? (
-        <Text style={styles.program} numberOfLines={1}>
-          {title}
-        </Text>
-      ) : null}
-    </View>
-  );
+function selectedAiring(
+  airings: GuideAiring[],
+  nowOffset: number | null,
+): GuideAiring | null {
+  if (nowOffset != null) {
+    const hit = airings.find(
+      airing => nowOffset >= airing.offset && nowOffset < airing.offset + airing.minutes,
+    );
+    if (hit != null) {
+      return hit;
+    }
+  }
+  return airings.find(airing => airing.offset + airing.minutes > 0) ?? null;
 }
 
-function YouTubeBadge() {
+function ProgramBlock({
+  airing,
+  span,
+  selected,
+}: {
+  airing: GuideAiring;
+  span: number;
+  selected: boolean;
+}) {
+  const start = Math.max(0, airing.offset);
+  const end = Math.min(span, airing.offset + airing.minutes);
+  if (end <= start) {
+    return null;
+  }
+  const place = {
+    left: `${(start / span) * 100}%`,
+    width: `${((end - start) / span) * 100}%`,
+  };
   return (
-    <View style={styles.yt}>
-      <View style={styles.ytPlay}>
-        <View style={styles.ytTriangle} />
-      </View>
-      <Text style={styles.ytLabel}>YouTube</Text>
+    <View
+      style={[styles.program, place, selected && styles.programSelected]}
+    >
+      <Text
+        style={[styles.programTitle, selected && styles.programTitleSelected]}
+        numberOfLines={1}
+      >
+        {airing.title}
+      </Text>
+      {selected ? null : <View style={styles.programRule} />}
     </View>
   );
 }
@@ -376,55 +373,16 @@ function YouTubeBadge() {
 const styles = StyleSheet.create({
   fill: {
     flex: 1,
-    backgroundColor: '#07090D',
-  },
-  header: {
-    height: 72,
-    paddingHorizontal: 28,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  },
-  brandSmall: {
-    color: colors.textPrimary,
-    fontSize: 16,
-    fontWeight: '600',
-    letterSpacing: 0.4,
-  },
-  brandLarge: {
-    color: colors.textPrimary,
-    fontSize: 22,
-    fontWeight: '700',
-    letterSpacing: 1.4,
-    marginTop: -2,
-  },
-  clock: {
-    color: colors.textPrimary,
-    fontSize: 18,
-    fontWeight: '500',
+    backgroundColor: colors.background,
+    paddingTop: 16,
   },
   ruler: {
     height: RULER_HEIGHT,
     flexDirection: 'row',
-    alignItems: 'flex-end',
+    alignItems: 'stretch',
   },
-  modeCol: {
+  channelSpacer: {
     width: CHANNEL_COLUMN,
-    paddingLeft: 28,
-    paddingBottom: 8,
-    gap: 2,
-  },
-  watch: {
-    color: colors.textPrimary,
-    fontSize: 12,
-    fontWeight: '700',
-    letterSpacing: 1.1,
-  },
-  dvr: {
-    color: '#8E99A8',
-    fontSize: 12,
-    fontWeight: '700',
-    letterSpacing: 1.1,
   },
   rulerSlots: {
     flex: 1,
@@ -435,22 +393,26 @@ const styles = StyleSheet.create({
   slotHead: {
     flex: 1,
     alignItems: 'flex-start',
-    justifyContent: 'flex-end',
-    paddingBottom: 6,
+    justifyContent: 'flex-start',
+    paddingTop: 2,
   },
   slotLabel: {
     color: colors.textPrimary,
-    fontSize: 15,
-    fontWeight: '600',
+    fontSize: 16,
+    fontWeight: '500',
   },
   slotLabelNow: {
-    color: colors.textPrimary,
+    borderBottomWidth: 2,
+    borderBottomColor: NOW_LINE,
+    paddingBottom: 3,
   },
-  underline: {
-    marginTop: 4,
-    width: 36,
-    height: 2,
-    backgroundColor: NOW_LINE,
+  nowLabel: {
+    position: 'absolute',
+    bottom: 8,
+    color: NOW_LINE,
+    fontSize: 10,
+    fontWeight: '700',
+    letterSpacing: 0.6,
   },
   rows: {
     flex: 1,
@@ -461,28 +423,31 @@ const styles = StyleSheet.create({
     alignItems: 'stretch',
     borderRadius: 0,
     borderWidth: 0,
-    borderTopWidth: 1,
-    borderTopColor: GRID_LINE,
   },
   rowFocused: {
-    backgroundColor: 'rgba(255, 255, 255, 0.08)',
+    backgroundColor: 'transparent',
     borderColor: 'transparent',
-    borderTopColor: '#D5E6FA',
-    borderLeftWidth: 3,
-    borderLeftColor: '#FFFFFF',
   },
   channelCol: {
     width: CHANNEL_COLUMN,
-    paddingLeft: 28,
-    paddingRight: 12,
+    paddingLeft: 12,
+    paddingRight: 16,
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 10,
+    gap: 8,
+  },
+  channelColOpen: {
+    paddingLeft: 32,
+  },
+  channelNumber: {
+    color: colors.textPrimary,
+    fontSize: 16,
+    fontWeight: '500',
   },
   channelName: {
     flex: 1,
     color: colors.textPrimary,
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: '500',
   },
   clip: {
@@ -490,76 +455,43 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
   },
   strip: {
-    flexDirection: 'row',
     height: '100%',
-  },
-  cell: {
-    height: '100%',
-    justifyContent: 'center',
-    paddingRight: 8,
-  },
-  cellFlex: {
-    flex: 1,
   },
   program: {
-    color: 'rgba(255, 255, 255, 0.88)',
-    fontSize: 15,
-    fontWeight: '500',
-    paddingLeft: 10,
-  },
-  gridLine: {
     position: 'absolute',
     top: 0,
     bottom: 0,
-    width: 1,
-    backgroundColor: GRID_LINE,
+    justifyContent: 'center',
+    paddingRight: 12,
+  },
+  programSelected: {
+    top: 8,
+    bottom: 8,
+    borderWidth: 2,
+    borderColor: '#FFFFFF',
+    paddingRight: 16,
+    paddingLeft: 16,
+  },
+  programTitle: {
+    color: colors.textPrimary,
+    fontSize: 16,
+    fontWeight: '500',
+  },
+  programTitleSelected: {
+    alignSelf: 'stretch',
+    textAlign: 'center',
+  },
+  programRule: {
+    height: 1,
+    marginTop: 7,
+    backgroundColor: 'rgba(255, 255, 255, 0.92)',
   },
   nowLine: {
     position: 'absolute',
     top: 0,
-    bottom: 0,
     width: 2,
     marginLeft: -1,
     backgroundColor: NOW_LINE,
     zIndex: 2,
-  },
-  nowTick: {
-    position: 'absolute',
-    bottom: 0,
-    width: 2,
-    height: 18,
-    marginLeft: -1,
-    backgroundColor: NOW_LINE,
-  },
-  yt: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-    paddingLeft: 10,
-  },
-  ytPlay: {
-    width: 28,
-    height: 20,
-    borderRadius: 6,
-    backgroundColor: '#FF0033',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  ytTriangle: {
-    width: 0,
-    height: 0,
-    marginLeft: 2,
-    borderLeftWidth: 8,
-    borderTopWidth: 5,
-    borderBottomWidth: 5,
-    borderLeftColor: '#FFFFFF',
-    borderTopColor: 'transparent',
-    borderBottomColor: 'transparent',
-  },
-  ytLabel: {
-    color: colors.textPrimary,
-    fontSize: 18,
-    fontWeight: '700',
-    letterSpacing: -0.3,
   },
 });
