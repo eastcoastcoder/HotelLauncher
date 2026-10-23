@@ -113,6 +113,8 @@ Tuner, HDMI input, volume, power, boot, real Home replacement. Only if the A90K 
 
 #### Watch TV — TVirl live channels
 
+`src/screens/WatchTV.tsx` currently shows a dummy guide and a fullscreen guide so the screen can be walked with the remote before a tuner is connected. With Watch TV selected and focus still on that sidebar row, the main column shows the same guide grid as the fullscreen guide. Right from that row slides the whole launcher, including the header and navigation, off to the left while the fullscreen guide comes in from the right. Left or Back closes the guide and returns focus to the Watch TV row. Sample rows live in `src/screens/guideData.ts`. That list is not the TVirl query below.
+
 `src/screens/WatchTV.tsx` should list channels the guest already added with **TVirl** and play the chosen one through Android TV's live-channel stack. Do not assume the Sony tuner or an HDMI input. TVirl does not ship streams. It is a TV input service that publishes the user's M3U playlist into the system TV provider. Package `by.stari4ek.tvirl`. It is closed source and not a player.
 
 Playback belongs to the system TV app. That app creates a `TvInputManager` session and asks TVirl to tune. On Shield and Chromecast the app is Live Channels (`com.google.android.tv`). Sony ships its own TV app, and TVirl's guide UI on Sony is that app, not Live Channels. A BRAVIA Programme Guide activity observed in the field is `com.sony.dtv.tvx` / `com.sony.dtv.tvx.MainActivity`. Confirm the package on this A90K before hard-coding it. The system TV app is often hidden until a TV input such as TVirl is installed. TVirl's own setup expects that app to have been opened once.

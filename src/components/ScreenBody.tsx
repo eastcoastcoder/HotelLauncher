@@ -31,7 +31,13 @@ export function ScreenBody({
   }
 
   if (screen === 'WatchTV') {
-    return <WatchTV />;
+    return (
+      <WatchTV
+        fullscreen={videoFullscreen}
+        onEnterFullscreen={() => setVideoFullscreen(true)}
+        onExitFullscreen={() => setVideoFullscreen(false)}
+      />
+    );
   }
 
   if (screen === 'Stream') {

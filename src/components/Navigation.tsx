@@ -103,6 +103,9 @@ export function Navigation({
         }
         ref={node => {
           itemRefs.current.set(item.id, node);
+          if (item.screen != null) {
+            navReturnRef.current?.registerMainNode(item.screen, node);
+          }
         }}
         focusable={enabled}
         hasTVPreferredFocus={preferred ? true : undefined}

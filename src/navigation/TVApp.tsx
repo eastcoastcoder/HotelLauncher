@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
-import { BackHandler, StyleSheet, View } from 'react-native';
+import { BackHandler, StyleSheet, useWindowDimensions, View } from 'react-native';
+import { ShellSlideProvider } from './ShellSlide';
 import { Header } from '../components/Header';
 import { LaunchNotice } from '../components/LaunchNotice';
 import { Navigation } from '../components/Navigation';
@@ -18,6 +19,7 @@ export function TVApp() {
   const [videoFullscreen, setVideoFullscreen] = useState(false);
   const showChrome = !videoFullscreen;
   const screenBackground = useScreenBackground();
+  const { width: windowWidth } = useWindowDimensions();
 
   useEffect(() => {
     const subscription = BackHandler.addEventListener(
@@ -42,43 +44,47 @@ export function TVApp() {
       {screenBackground ? (
         <ScreenBackground background={screenBackground} />
       ) : null}
-      <View style={showChrome ? undefined : styles.hidden}>
-        <Header />
-      </View>
-      <View style={[styles.body, showChrome ? undefined : styles.bodyFull]}>
-        <NavReturnProvider>
-          <View style={showChrome ? undefined : styles.hidden}>
-            <Navigation
-              active={screen}
-              enabled={showChrome}
-              menuItems={menuItems}
-              onSelect={next => {
-                if (next == null) {
-                  return;
-                }
-                setVideoFullscreen(false);
-                setScreen(next);
-              }}
-            />
-          </View>
-          <View style={styles.main}>
-            <ScreenBody
-              screen={screen}
-              videoFullscreen={videoFullscreen}
-              setVideoFullscreen={setVideoFullscreen}
-              showChrome={showChrome}
-            />
-            <View
-              style={
-                !showChrome || screen !== 'Discover' ? styles.hidden : undefined
-              }
-            >
-              <PromoBanner />
+      <ShellSlideProvider width={windowWidth}>
+        <View style={showChrome ? undefined : styles.hidden}>
+          <Header />
+        </View>
+        <View style={[styles.body, showChrome ? undefined : styles.bodyFull]}>
+          <NavReturnProvider>
+            <View style={showChrome ? undefined : styles.hidden}>
+              <Navigation
+                active={screen}
+                enabled={showChrome}
+                menuItems={menuItems}
+                onSelect={next => {
+                  if (next == null) {
+                    return;
+                  }
+                  setVideoFullscreen(false);
+                  setScreen(next);
+                }}
+              />
             </View>
-            {showChrome ? <LaunchNotice /> : null}
-          </View>
-        </NavReturnProvider>
-      </View>
+            <View style={styles.main}>
+              <ScreenBody
+                screen={screen}
+                videoFullscreen={videoFullscreen}
+                setVideoFullscreen={setVideoFullscreen}
+                showChrome={showChrome}
+              />
+              <View
+                style={
+                  !showChrome || screen !== 'Discover'
+                    ? styles.hidden
+                    : undefined
+                }
+              >
+                <PromoBanner />
+              </View>
+              {showChrome ? <LaunchNotice /> : null}
+            </View>
+          </NavReturnProvider>
+        </View>
+      </ShellSlideProvider>
     </View>
   );
 }

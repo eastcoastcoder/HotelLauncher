@@ -3,12 +3,17 @@ import {
   useCallback,
   useContext,
   useMemo,
+  useRef,
   useState,
   type ReactNode,
 } from 'react';
 import { ScreenId } from '../types';
 
 type HandleMap = Partial<Record<ScreenId, number | null>>;
+
+type FocusTarget = {
+  requestTVFocus?: () => void;
+};
 
 type NavReturnState = {
   /** Native tag of each screen's row in the main menu. */
@@ -17,6 +22,9 @@ type NavReturnState = {
   entries: HandleMap;
   setMain: (screen: ScreenId, handle: number | null) => void;
   setEntry: (screen: ScreenId, handle: number | null) => void;
+  /** Keeps the main-menu row so a screen can put focus back on it. */
+  registerMainNode: (screen: ScreenId, node: FocusTarget | null) => void;
+  focusMain: (screen: ScreenId) => void;
 };
 
 const NavReturnContext = createContext<NavReturnState | null>(null);
@@ -48,9 +56,30 @@ export function NavReturnProvider({ children }: { children: ReactNode }) {
     setEntries(current => remember(current, screen, handle));
   }, []);
 
+  const mainNodes = useRef<Partial<Record<ScreenId, FocusTarget | null>>>({});
+  const registerMainNode = useCallback(
+    (screen: ScreenId, node: FocusTarget | null) => {
+      mainNodes.current[screen] = node;
+    },
+    [],
+  );
+  const focusMain = useCallback((screen: ScreenId) => {
+    const node = mainNodes.current[screen];
+    if (node != null && typeof node.requestTVFocus === 'function') {
+      node.requestTVFocus();
+    }
+  }, []);
+
   const value = useMemo(
-    () => ({ mains, entries, setMain, setEntry }),
-    [entries, mains, setEntry, setMain],
+    () => ({
+      mains,
+      entries,
+      setMain,
+      setEntry,
+      registerMainNode,
+      focusMain,
+    }),
+    [entries, focusMain, mains, registerMainNode, setEntry, setMain],
   );
 
   return (
