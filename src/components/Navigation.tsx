@@ -11,6 +11,7 @@ import { NavIcon } from './NavIcon';
 type Props = {
   active: ScreenId;
   onSelect: (screen: ScreenId | null) => void;
+  onItemFocus?: (item: MenuItem) => void;
   onItemPress?: (item: MenuItem) => void;
   onItemPressOut?: (item: MenuItem) => void;
   onItemLongPress?: (item: MenuItem) => void;
@@ -24,6 +25,7 @@ type Props = {
 export function Navigation({
   active,
   onSelect,
+  onItemFocus,
   onItemPress,
   onItemPressOut,
   onItemLongPress,
@@ -43,6 +45,7 @@ export function Navigation({
   const menuItemKey = menuItems.map(item => item.id).join('\0');
   // Screen menus name a ScreenId. Submenus (Stream, My Media, Hotel Info) do not.
   const directsScreen = menuItems.some(item => item.screen != null);
+  const hasReceivedFocus = useRef(false);
   const menuItemsRef = useRef(menuItems);
   menuItemsRef.current = menuItems;
   const itemRefs = useRef(new Map<string, View | null>());
@@ -87,13 +90,22 @@ export function Navigation({
   }, [menuItemKey, releaseMenuItems]);
 
   const rows = menuItems.map(item => {
+    const itemIndex = menuItems.indexOf(item);
+    const previousItem = directsScreen ? menuItems[itemIndex - 1] : null;
+    const nextItem = directsScreen ? menuItems[itemIndex + 1] : null;
+    const previousNode =
+      previousItem == null ? null : itemRefs.current.get(previousItem.id);
+    const nextNode = nextItem == null ? null : itemRefs.current.get(nextItem.id);
     const selected = item.screen === active;
     const emphasized = focusedId === null ? selected : focusedId === item.id;
     const color = emphasized ? colors.navActive : colors.navIdle;
     const preferred =
       preferredFocusId != null
         ? preferredFocusId === item.id
-        : directsScreen && item.screen === active;
+        : directsScreen &&
+          !hasReceivedFocus.current &&
+          focusedId == null &&
+          item.screen === active;
     return (
       <Focusable
         key={
@@ -105,6 +117,8 @@ export function Navigation({
           itemRefs.current.set(item.id, node);
           if (item.screen != null) {
             navReturnRef.current?.registerMainNode(item.screen, node);
+          } else if (!directsScreen && menuItems[0]?.id === item.id) {
+            navReturnRef.current?.registerEntryNode(active, node);
           }
         }}
         focusable={enabled}
@@ -112,6 +126,12 @@ export function Navigation({
         onLayout={publishNavHandles}
         nextFocusLeft={
           directsScreen || returnTarget == null ? undefined : returnTarget
+        }
+        nextFocusUp={
+          previousNode == null ? undefined : findNodeHandle(previousNode) ?? undefined
+        }
+        nextFocusDown={
+          nextNode == null ? undefined : findNodeHandle(nextNode) ?? undefined
         }
         nextFocusRight={
           directsScreen && item.screen === active && entryTarget != null
@@ -125,6 +145,9 @@ export function Navigation({
             return;
           }
           onSelect(item.screen);
+          if (directsScreen && item.screen != null) {
+            navReturnRef.current?.focusEntry(item.screen);
+          }
         }}
         onPressOut={
           onItemPressOut == null
@@ -149,7 +172,11 @@ export function Navigation({
             return current === item.id ? null : current;
           });
           if (focused) {
+            hasReceivedFocus.current = true;
             setHoveredMenuItem(item.id);
+            if (directsScreen) {
+              onItemFocus?.(item);
+            }
           } else {
             clearHoveredMenuItem(item.id);
           }

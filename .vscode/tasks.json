@@ -1,0 +1,53 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Start Metro Bundler",
+      "type": "shell",
+      "command": "npm start",
+      "args": ["--reset-cache"],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "useStderr": true,
+        "reveal": "silent"
+      },
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared"
+      },
+      "problemMatcher": [],
+      "group": "build"
+    },
+    {
+      "label": "Clean React Native Cache",
+      "type": "shell",
+      "command": "cd android && ./gradlew clean && rm -rf $TMPDIR/react-native-*",
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "useStderr": true,
+        "reveal": "never"
+      },
+      "presentation": {
+        "reveal": "never",
+        "panel": "shared"
+      },
+      "group": "build"
+    },
+    {
+      "label": "Run All Tests",
+      "type": "shell",
+      "command": "npm test",
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "useStderr": true,
+        "reveal": "always"
+      },
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared"
+      },
+      "problemMatcher": "$test",
+      "group": "test"
+    }
+  ]
+}

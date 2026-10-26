@@ -11,6 +11,7 @@ import {
 } from 'react-native';
 import { ChannelMark } from '../components/ChannelMark';
 import { Focusable } from '../components/Focusable';
+import { useNavReturn } from '../navigation/NavReturn';
 import { colors } from '../theme/colors';
 import {
   airingsFor,
@@ -52,6 +53,8 @@ export function GuideGrid({
   const [gridWidth, setGridWidth] = useState(0);
   const [pending, setPending] = useState<1 | -1 | 0>(0);
   const [focusedId, setFocusedId] = useState(guideChannels[0]?.id ?? '');
+  const nav = useNavReturn();
+  const watchTVMain = nav?.mains.WatchTV;
   const slide = useRef(new Animated.Value(0)).current;
   const firstRowRef = useRef<View>(null);
   const onCloseRef = useRef(onClose);
@@ -71,18 +74,14 @@ export function GuideGrid({
     if (!interactive) {
       return;
     }
-    let second = 0;
     const first = requestAnimationFrame(() => {
-      second = requestAnimationFrame(() => {
-        const node = firstRowRef.current;
-        if (node != null && typeof node.requestTVFocus === 'function') {
-          node.requestTVFocus();
-        }
-      });
+      const node = firstRowRef.current;
+      if (node != null && typeof node.requestTVFocus === 'function') {
+        node.requestTVFocus();
+      }
     });
     return () => {
       cancelAnimationFrame(first);
-      cancelAnimationFrame(second);
     };
   }, [interactive]);
 
@@ -96,9 +95,6 @@ export function GuideGrid({
   const onRemote = useCallback(
     (event: HWEvent) => {
       if (!interactive) {
-        return;
-      }
-      if (event.eventKeyAction != null && event.eventKeyAction !== 0) {
         return;
       }
       if (event.eventType === 'left') {
@@ -231,9 +227,9 @@ export function GuideGrid({
               key={channel.id}
               ref={index === 0 ? firstRowRef : undefined}
               testID={`guide-row-${channel.id}`}
-              hasTVPreferredFocus={index === 0 ? true : undefined}
               style={styles.row}
               focusedStyle={styles.rowFocused}
+              nextFocusLeft={watchTVMain ?? undefined}
               onFocusChange={next => {
                 if (next) {
                   setFocusedId(channel.id);
@@ -260,7 +256,6 @@ export function GuideGrid({
       style={styles.fill}
       trapFocusUp
       trapFocusDown
-      trapFocusLeft
       trapFocusRight
     >
       {frame}

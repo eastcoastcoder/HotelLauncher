@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import ReactTestRenderer from 'react-test-renderer';
 import { Navigation } from '../src/components/Navigation';
 import { BackgroundProvider } from '../src/context/BackgroundContext';
@@ -9,6 +9,7 @@ import {
   streamMenuItems,
 } from '../src/config/launcherConfig';
 import { NavReturnProvider } from '../src/navigation/NavReturn';
+import { useNavReturn } from '../src/navigation/NavReturn';
 import { ScreenId } from '../src/types';
 
 jest.mock('react-native/Libraries/ReactNative/RendererProxy', () => {
@@ -80,7 +81,15 @@ beforeEach(() => {
   focusCalls().length = 0;
 });
 
-function Harness({ initial }: { initial: ScreenId }) {
+function Harness({
+  initial,
+  onSelectSpy,
+  onEntryFocus,
+}: {
+  initial: ScreenId;
+  onSelectSpy?: (screen: ScreenId | null) => void;
+  onEntryFocus?: () => void;
+}) {
   const [screen, setScreen] = useState(initial);
   const submenu =
     screen === 'Stream'
@@ -93,10 +102,19 @@ function Harness({ initial }: { initial: ScreenId }) {
   return (
     <BackgroundProvider>
       <NavReturnProvider>
+        {onEntryFocus == null ? null : (
+          <EntryFocusTarget onFocus={onEntryFocus} />
+        )}
         <Navigation
           active={screen}
           menuItems={menuItems}
+          onItemFocus={item => {
+            if (item.screen != null) {
+              setScreen(item.screen);
+            }
+          }}
           onSelect={next => {
+            onSelectSpy?.(next);
             if (next != null) {
               setScreen(next);
             }
@@ -109,6 +127,38 @@ function Harness({ initial }: { initial: ScreenId }) {
     </BackgroundProvider>
   );
 }
+
+function EntryFocusTarget({ onFocus }: { onFocus: () => void }) {
+  const nav = useNavReturn();
+  useEffect(() => {
+    nav?.registerEntryNode('WatchTV', { requestTVFocus: onFocus });
+    return () => nav?.registerEntryNode('WatchTV', null);
+  }, [nav, onFocus]);
+  return null;
+}
+
+test('focusing a main-menu row previews its screen without selecting it', async () => {
+  const onSelect = jest.fn();
+  let renderer: ReactTestRenderer.ReactTestRenderer;
+  await ReactTestRenderer.act(() => {
+    renderer = ReactTestRenderer.create(
+      <Harness initial="Discover" onSelectSpy={onSelect} />,
+    );
+  });
+
+  await ReactTestRenderer.act(() => {
+    pressableFor(renderer!, 'Stream').props.onFocus();
+  });
+
+  expect(pressableFor(renderer!, 'Bonkflix')).toBeDefined();
+  expect(pressableFor(renderer!, 'Stream').props.hasTVPreferredFocus).toBe(
+    undefined,
+  );
+  expect(pressableFor(renderer!, 'Bonkflix').props.hasTVPreferredFocus).toBe(
+    undefined,
+  );
+  expect(onSelect).not.toHaveBeenCalled();
+});
 
 test('a submenu does not prefer its first row', async () => {
   let renderer: ReactTestRenderer.ReactTestRenderer;
@@ -125,6 +175,65 @@ test('a submenu does not prefer its first row', async () => {
   );
 });
 
+test('the main navigation keeps vertical focus within its rows', async () => {
+  let renderer: ReactTestRenderer.ReactTestRenderer;
+  await ReactTestRenderer.act(() => {
+    renderer = ReactTestRenderer.create(<Harness initial="WatchTV" />);
+  });
+
+  expect(pressableFor(renderer!, 'Watch TV').props.nextFocusUp).toBeDefined();
+  expect(pressableFor(renderer!, 'Watch TV').props.nextFocusDown).toBeDefined();
+
+  await ReactTestRenderer.act(() => {
+    renderer!.unmount();
+  });
+});
+
+test('the active row does not reclaim preferred focus after it blurs', async () => {
+  let renderer: ReactTestRenderer.ReactTestRenderer;
+  await ReactTestRenderer.act(() => {
+    renderer = ReactTestRenderer.create(<Harness initial="WatchTV" />);
+  });
+
+  const watchTV = pressableFor(renderer!, 'Watch TV');
+  await ReactTestRenderer.act(() => {
+    watchTV.props.onFocus();
+  });
+  expect(
+    pressableFor(renderer!, 'Watch TV').props.hasTVPreferredFocus,
+  ).toBeUndefined();
+
+  await ReactTestRenderer.act(() => {
+    pressableFor(renderer!, 'Watch TV').props.onBlur();
+  });
+  expect(
+    pressableFor(renderer!, 'Watch TV').props.hasTVPreferredFocus,
+  ).toBeUndefined();
+
+  await ReactTestRenderer.act(() => {
+    renderer!.unmount();
+  });
+});
+
+test('Select on Watch TV requests focus on its entry target', async () => {
+  const onEntryFocus = jest.fn();
+  let renderer: ReactTestRenderer.ReactTestRenderer;
+  await ReactTestRenderer.act(() => {
+    renderer = ReactTestRenderer.create(
+      <Harness initial="WatchTV" onEntryFocus={onEntryFocus} />,
+    );
+  });
+
+  await ReactTestRenderer.act(() => {
+    pressableFor(renderer!, 'Watch TV').props.onPress();
+  });
+
+  expect(onEntryFocus).toHaveBeenCalledTimes(1);
+  await ReactTestRenderer.act(() => {
+    renderer!.unmount();
+  });
+});
+
 test('left from a submenu returns to the screen row that opened it', async () => {
   let renderer: ReactTestRenderer.ReactTestRenderer;
   await ReactTestRenderer.act(() => {
@@ -139,9 +248,8 @@ test('left from a submenu returns to the screen row that opened it', async () =>
   const headphones = pressableFor(renderer!, 'Connect My Headphones');
   const chromecast = pressableFor(renderer!, 'Chromecast');
 
-  const calls = focusCalls();
-  const openedRow = calls[calls.length - 2];
-  const submenuEntry = calls[calls.length - 1];
+  const openedRow = pressableFor(renderer!, 'Stream').props.nextFocusDown;
+  const submenuEntry = myMedia.props.nextFocusRight;
 
   expect(myMedia.props.hasTVPreferredFocus).toBe(true);
   expect(headphones.props.hasTVPreferredFocus).toBe(undefined);

@@ -11,6 +11,8 @@ type Props = {
   videoFullscreen: boolean;
   setVideoFullscreen: (fullscreen: boolean) => void;
   showChrome: boolean;
+  onWatchTVFullscreenChange: (fullscreen: boolean) => void;
+  onWatchTVCloseHandlerChange: (close: (() => void) | null) => void;
 };
 
 // TODO: Replace with proper routing mechanism
@@ -19,6 +21,8 @@ export function ScreenBody({
   videoFullscreen,
   setVideoFullscreen,
   showChrome,
+  onWatchTVFullscreenChange,
+  onWatchTVCloseHandlerChange,
 }: Props) {
   if (screen === 'Discover') {
     return (
@@ -33,9 +37,8 @@ export function ScreenBody({
   if (screen === 'WatchTV') {
     return (
       <WatchTV
-        fullscreen={videoFullscreen}
-        onEnterFullscreen={() => setVideoFullscreen(true)}
-        onExitFullscreen={() => setVideoFullscreen(false)}
+        onFullscreenChange={onWatchTVFullscreenChange}
+        onCloseHandlerChange={onWatchTVCloseHandlerChange}
       />
     );
   }

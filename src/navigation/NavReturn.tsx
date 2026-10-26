@@ -24,7 +24,10 @@ type NavReturnState = {
   setEntry: (screen: ScreenId, handle: number | null) => void;
   /** Keeps the main-menu row so a screen can put focus back on it. */
   registerMainNode: (screen: ScreenId, node: FocusTarget | null) => void;
+  /** Keeps the first submenu row so Select can enter the screen's navigation. */
+  registerEntryNode: (screen: ScreenId, node: FocusTarget | null) => void;
   focusMain: (screen: ScreenId) => void;
+  focusEntry: (screen: ScreenId) => void;
 };
 
 const NavReturnContext = createContext<NavReturnState | null>(null);
@@ -57,14 +60,27 @@ export function NavReturnProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const mainNodes = useRef<Partial<Record<ScreenId, FocusTarget | null>>>({});
+  const entryNodes = useRef<Partial<Record<ScreenId, FocusTarget | null>>>({});
   const registerMainNode = useCallback(
     (screen: ScreenId, node: FocusTarget | null) => {
       mainNodes.current[screen] = node;
     },
     [],
   );
+  const registerEntryNode = useCallback(
+    (screen: ScreenId, node: FocusTarget | null) => {
+      entryNodes.current[screen] = node;
+    },
+    [],
+  );
   const focusMain = useCallback((screen: ScreenId) => {
     const node = mainNodes.current[screen];
+    if (node != null && typeof node.requestTVFocus === 'function') {
+      node.requestTVFocus();
+    }
+  }, []);
+  const focusEntry = useCallback((screen: ScreenId) => {
+    const node = entryNodes.current[screen];
     if (node != null && typeof node.requestTVFocus === 'function') {
       node.requestTVFocus();
     }
@@ -77,9 +93,20 @@ export function NavReturnProvider({ children }: { children: ReactNode }) {
       setMain,
       setEntry,
       registerMainNode,
+      registerEntryNode,
       focusMain,
+      focusEntry,
     }),
-    [entries, focusMain, mains, registerMainNode, setEntry, setMain],
+    [
+      entries,
+      focusEntry,
+      focusMain,
+      mains,
+      registerEntryNode,
+      registerMainNode,
+      setEntry,
+      setMain,
+    ],
   );
 
   return (

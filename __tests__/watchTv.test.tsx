@@ -1,14 +1,17 @@
 import { useState } from 'react';
 import ReactTestRenderer from 'react-test-renderer';
-import { Animated, Pressable, Text } from 'react-native';
+import { Animated, Text } from 'react-native';
 import { NavReturnProvider } from '../src/navigation/NavReturn';
 import { ShellSlideProvider } from '../src/navigation/ShellSlide';
+import { GuideGrid } from '../src/screens/GuideGrid';
 import { WatchTV } from '../src/screens/WatchTV';
 
 const slideTargets: number[] = [];
+let backHandler: (() => void) | null = null;
 
 beforeEach(() => {
   slideTargets.length = 0;
+  backHandler = null;
   jest.spyOn(Animated, 'timing').mockImplementation((value, config) => {
     const toValue =
       config != null && typeof config === 'object' && 'toValue' in config
@@ -32,46 +35,49 @@ afterEach(() => {
   jest.restoreAllMocks();
 });
 
-function Harness({ width = 0 }: { width?: number }) {
+function Harness() {
   const [fullscreen, setFullscreen] = useState(false);
-  const screen = (
-    <NavReturnProvider>
-      <WatchTV
-        fullscreen={fullscreen}
-        onEnterFullscreen={() => setFullscreen(true)}
-        onExitFullscreen={() => setFullscreen(false)}
-      />
-      <Pressable testID="leave-guide" onPress={() => setFullscreen(false)}>
-        <Text>Leave</Text>
-      </Pressable>
-    </NavReturnProvider>
+  return (
+    <ShellSlideProvider width={960}>
+      <NavReturnProvider>
+        <Text testID="guide-state">
+          {fullscreen ? 'fullscreen' : 'preview'}
+        </Text>
+        <WatchTV
+          onFullscreenChange={setFullscreen}
+          onCloseHandlerChange={close => {
+            backHandler = close;
+          }}
+        />
+      </NavReturnProvider>
+    </ShellSlideProvider>
   );
-  if (width <= 0) {
-    return screen;
-  }
-  return <ShellSlideProvider width={width}>{screen}</ShellSlideProvider>;
 }
 
-test('sidebar state shows the guide grid', async () => {
+test('the preview is cropped from the full-width guide without claiming focus', async () => {
   let renderer: ReactTestRenderer.ReactTestRenderer;
   await ReactTestRenderer.act(() => {
     renderer = ReactTestRenderer.create(<Harness />);
   });
 
-  expect(renderer!.root.findByProps({ testID: 'watch-tv-preview' })).toBeTruthy();
-  expect(renderer!.root.findByProps({ testID: 'watch-tv-preview-grid' })).toBeTruthy();
-  expect(renderer!.root.findByProps({ children: 'NOW' })).toBeTruthy();
-  expect(renderer!.root.findByProps({ children: 'Hotel TV' })).toBeTruthy();
-  expect(renderer!.root.findByProps({ children: 'Hotel Channel' })).toBeTruthy();
-  expect(renderer!.root.findByProps({ children: 'NBC' })).toBeTruthy();
-  expect(renderer!.root.findAllByProps({ testID: 'watch-tv-grid' })).toHaveLength(0);
+  expect(
+    renderer!.root.findByProps({ testID: 'watch-tv-preview-grid' }),
+  ).toBeTruthy();
+  expect(
+    renderer!.root.findAll(
+      node => node.props.hasTVPreferredFocus === true,
+    ),
+  ).toHaveLength(0);
+  expect(
+    renderer!.root.findByProps({ testID: 'guide-state' }).props.children,
+  ).toBe('preview');
 
   await ReactTestRenderer.act(() => {
     renderer!.unmount();
   });
 });
 
-test('focus from the right opens the fullscreen guide and back returns', async () => {
+test('the navigation and full-width guide reveal together', async () => {
   let renderer: ReactTestRenderer.ReactTestRenderer;
   await ReactTestRenderer.act(() => {
     renderer = ReactTestRenderer.create(<Harness />);
@@ -83,40 +89,68 @@ test('focus from the right opens the fullscreen guide and back returns', async (
       .props.onFocusChange(true);
   });
 
-  expect(renderer!.root.findByProps({ testID: 'watch-tv-grid' })).toBeTruthy();
-  expect(renderer!.root.findByProps({ children: 'NOW' })).toBeTruthy();
-  expect(renderer!.root.findByProps({ children: 'NBC' })).toBeTruthy();
-  expect(renderer!.root.findByProps({ children: 'Hotel Channel' })).toBeTruthy();
-  expect(renderer!.root.findAllByProps({ testID: 'watch-tv-preview' })).toHaveLength(0);
+  expect(slideTargets).toEqual([-228, 0]);
+  expect(
+    renderer!.root.findByProps({ testID: 'watch-tv-grid' }).props.interactive,
+  ).toBe(true);
+  expect(
+    renderer!.root.findByProps({ testID: 'guide-row-hotel' })
+      .props.hasTVPreferredFocus,
+  ).toBeUndefined();
+  expect(
+    renderer!.root.findByProps({ testID: 'guide-state' }).props.children,
+  ).toBe('fullscreen');
+  expect(
+    renderer!.root.findAllByProps({ testID: 'watch-tv-entry' }),
+  ).toHaveLength(0);
 
   await ReactTestRenderer.act(() => {
-    renderer!.root.findByProps({ testID: 'leave-guide' }).props.onPress();
+    renderer!.root
+      .findByProps({ testID: 'guide-row-hotel' })
+      .props.onFocusChange(true);
+  });
+  expect(
+    renderer!.root.findAllByProps({ testID: 'watch-tv-entry' }),
+  ).toHaveLength(0);
+
+  await ReactTestRenderer.act(() => {
+    renderer!.root.findByType(GuideGrid).props.onClose();
   });
 
-  expect(renderer!.root.findByProps({ testID: 'watch-tv-preview' })).toBeTruthy();
-  expect(renderer!.root.findAllByProps({ testID: 'watch-tv-grid' })).toHaveLength(0);
+  expect(slideTargets).toEqual([-228, 0, 0, 228]);
+  expect(
+    renderer!.root.findByProps({ testID: 'watch-tv-preview-grid' }),
+  ).toBeTruthy();
+  expect(
+    renderer!.root.findByProps({ testID: 'guide-state' }).props.children,
+  ).toBe('preview');
 
   await ReactTestRenderer.act(() => {
     renderer!.unmount();
   });
 });
 
-test('right opens by sliding the shell left and the guide in from the right', async () => {
+test('the registered Back action closes the guide through its transition', async () => {
   let renderer: ReactTestRenderer.ReactTestRenderer;
   await ReactTestRenderer.act(() => {
-    renderer = ReactTestRenderer.create(<Harness width={960} />);
+    renderer = ReactTestRenderer.create(<Harness />);
   });
 
+  await ReactTestRenderer.act(() => {
+    renderer!.root
+      .findByProps({ testID: 'watch-tv-entry' })
+      .props.onFocusChange(true);
+  });
   slideTargets.length = 0;
+
   await ReactTestRenderer.act(() => {
-    renderer!.root
-      .findByProps({ testID: 'watch-tv-entry' })
-      .props.onFocusChange(true);
+    backHandler?.();
   });
 
-  expect(slideTargets).toEqual([-960, 0]);
-  expect(renderer!.root.findByProps({ testID: 'watch-tv-grid' })).toBeTruthy();
-  expect(renderer!.root.findAllByProps({ testID: 'watch-tv-preview' })).toHaveLength(0);
+  expect(slideTargets).toEqual([0, 228]);
+  expect(
+    renderer!.root.findByProps({ testID: 'guide-state' }).props.children,
+  ).toBe('preview');
 
   await ReactTestRenderer.act(() => {
     renderer!.unmount();

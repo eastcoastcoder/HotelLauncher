@@ -1,0 +1,45 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Launch Android App",
+      "type": "node-terminal",
+      "request": "launch",
+      "command": "npm run android",
+      "cwd": "${workspaceFolder}",
+      "presentation": {
+        "hidden": false
+      }
+    },
+    {
+      "name": "Launch tvOS Simulator",
+      "type": "node-terminal",
+      "request": "launch",
+      "command": "npm run tvos",
+      "cwd": "${workspaceFolder}",
+      "presentation": {
+        "hidden": false
+      }
+    },
+    {
+      "name": "Debug iOS Simulator App",
+      "type": "node-terminal",
+      "request": "launch",
+      "command": "open -a 'Xcode' ios/HotelLauncher.xcworkspace",
+      "cwd": "${workspaceFolder}",
+      "presentation": {
+        "hidden": false
+      }
+    },
+    {
+      "name": "Debug Android App",
+      "type": "node-terminal",
+      "request": "launch",
+      "command": "cd android && ./gradlew assembleDebug",
+      "cwd": "${workspaceFolder}",
+      "presentation": {
+        "hidden": false
+      }
+    }
+  ]
+}

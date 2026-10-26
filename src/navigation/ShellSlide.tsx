@@ -3,23 +3,19 @@ import {
   useContext,
   useMemo,
   useRef,
-  useState,
   type ReactNode,
 } from 'react';
 import { Animated, StyleSheet, View } from 'react-native';
 
 type ShellSlideValue = {
-  shellX: Animated.Value;
+  navigationX: Animated.Value;
   getWidth: () => number;
-  setCover: (node: ReactNode) => void;
 };
 
 const ShellSlideContext = createContext<ShellSlideValue | null>(null);
 
 /**
- * Slides the launcher body (navigation and the open screen) as one piece.
- * The header stays above this host. `setCover` paints the incoming screen
- * above the body, outside the transform.
+ * Shares the navigation animation and viewport dimensions with Watch TV.
  */
 export function ShellSlideProvider({
   width,
@@ -28,28 +24,21 @@ export function ShellSlideProvider({
   width: number;
   children: ReactNode;
 }) {
-  const shellX = useRef(new Animated.Value(0)).current;
-  const [cover, setCover] = useState<ReactNode>(null);
+  const navigationX = useRef(new Animated.Value(0)).current;
   const widthRef = useRef(width);
   widthRef.current = width;
   const api = useMemo<ShellSlideValue>(
     () => ({
-      shellX,
+      navigationX,
       getWidth: () => widthRef.current,
-      setCover,
     }),
-    [shellX],
+    [navigationX],
   );
 
   return (
     <ShellSlideContext.Provider value={api}>
       <View style={styles.host}>
-        <Animated.View
-          style={[styles.shell, { transform: [{ translateX: shellX }] }]}
-        >
-          {children}
-        </Animated.View>
-        {cover}
+        {children}
       </View>
     </ShellSlideContext.Provider>
   );
@@ -63,8 +52,5 @@ const styles = StyleSheet.create({
   host: {
     flex: 1,
     overflow: 'hidden',
-  },
-  shell: {
-    flex: 1,
   },
 });
