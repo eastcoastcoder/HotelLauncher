@@ -1,4 +1,11 @@
-import { StyleSheet, View } from 'react-native';
+import HomeIcon from '../assets/home-icon.svg';
+import HotelIcon from '../assets/hotel-icon.svg';
+import PauseIcon from '../assets/pause-icon.svg';
+import PlayIcon from '../assets/play-icon.svg';
+import PrevIcon from '../assets/prev-icon.svg';
+import SettingsIcon from '../assets/settings-icon.svg';
+import StreamIcon from '../assets/stream-icon.svg';
+import TvIcon from '../assets/tv-icon.svg';
 import { NavIconName } from '../types';
 
 type Props = {
@@ -9,286 +16,26 @@ type Props = {
 export function NavIcon({ name, color }: Props) {
   switch (name) {
     case 'home':
-      return <Home color={color} />;
+      return <HomeIcon width={24} height={24} stroke={color} />;
     case 'tv':
-      return <Tv color={color} />;
+      return <TvIcon width={24} height={24} fill={color} stroke={color} />;
     case 'stream':
-      return <Stream color={color} />;
+      return <StreamIcon width={24} height={24} fill={color} />;
     case 'prev':
-      return <Prev color={color} />;
+      return <PrevIcon width={24} height={24} fill={color} />;
     case 'play':
-      return <Play color={color} />;
+      return <PlayIcon width={24} height={24} fill={color} />;
     case 'pause':
-      return <Pause color={color} />;
+      return <PauseIcon width={24} height={24} fill={color} />;
     case 'hotel':
-      return <Hotel color={color} />;
+      return <HotelIcon width={24} height={24} fill={color} stroke={color} />;
     case 'settings':
-      return <Settings color={color} />;
+      return (
+        <SettingsIcon width={24} height={24} fill={color} stroke={color} />
+      );
     default: {
       const unexpected: never = name;
       return unexpected;
     }
   }
 }
-
-function Home({ color }: { color: string }) {
-  return (
-    <View style={styles.box}>
-      <View style={[styles.roofLeft, { backgroundColor: color }]} />
-      <View style={[styles.roofRight, { backgroundColor: color }]} />
-      <View style={[styles.walls, { borderColor: color }]} />
-    </View>
-  );
-}
-
-function Tv({ color }: { color: string }) {
-  return (
-    <View style={styles.box}>
-      <View style={[styles.screen, { borderColor: color }]} />
-    </View>
-  );
-}
-
-function Stream({ color }: { color: string }) {
-  return (
-    <View style={styles.box}>
-      <View style={styles.streamRow}>
-        <Triangle color={color} kind="stream" />
-        <Triangle color={color} kind="stream" />
-      </View>
-    </View>
-  );
-}
-
-function Prev({ color }: { color: string }) {
-  return (
-    <View style={styles.box}>
-      <View style={styles.prevRow}>
-        <Triangle color={color} kind="prev" />
-        <Triangle color={color} kind="prev" />
-      </View>
-    </View>
-  );
-}
-
-function Play({ color }: { color: string }) {
-  return (
-    <View style={[styles.box, styles.center]}>
-      <Triangle color={color} kind="play" />
-    </View>
-  );
-}
-
-function Pause({ color }: { color: string }) {
-  return (
-    <View style={[styles.box, styles.center]}>
-      <View style={[styles.pause, { borderColor: color }]} />
-    </View>
-  );
-}
-
-function Hotel({ color }: { color: string }) {
-  return (
-    <View style={styles.box}>
-      <View style={[styles.penthouse, { borderColor: color }]} />
-      <View style={[styles.building, { borderColor: color }]} />
-      <View
-        style={[styles.window, styles.windowA, { backgroundColor: color }]}
-      />
-      <View
-        style={[styles.window, styles.windowB, { backgroundColor: color }]}
-      />
-      <View
-        style={[styles.window, styles.windowC, { backgroundColor: color }]}
-      />
-      <View
-        style={[styles.window, styles.windowD, { backgroundColor: color }]}
-      />
-    </View>
-  );
-}
-
-function Settings({ color }: { color: string }) {
-  const teeth = [0, 45, 90, 135, 180, 225, 270, 315];
-  return (
-    <View style={styles.box}>
-      {teeth.map(deg => (
-        <View
-          key={deg}
-          style={[styles.toothWrap, { transform: [{ rotate: `${deg}deg` }] }]}
-        >
-          <View style={[styles.tooth, { backgroundColor: color }]} />
-        </View>
-      ))}
-      <View style={[styles.gearRing, { borderColor: color }]} />
-    </View>
-  );
-}
-
-function Triangle({
-  color,
-  kind,
-}: {
-  color: string;
-  kind: 'stream' | 'play' | 'prev';
-}) {
-  return (
-    <View
-      style={[
-        kind === 'stream'
-          ? styles.streamTriangle
-          : kind === 'prev'
-          ? styles.prevTriangle
-          : styles.playTriangle,
-        { borderLeftColor: color, borderRightColor: color },
-      ]}
-    />
-  );
-}
-
-const stroke = 1.7;
-
-const styles = StyleSheet.create({
-  box: {
-    width: 24,
-    height: 24,
-  },
-  center: {
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  roofLeft: {
-    position: 'absolute',
-    left: 3.6,
-    top: 7.1,
-    width: 10.3,
-    height: stroke,
-    borderRadius: 1,
-    transform: [{ rotate: '-51deg' }],
-  },
-  roofRight: {
-    position: 'absolute',
-    left: 10.1,
-    top: 7.1,
-    width: 10.3,
-    height: stroke,
-    borderRadius: 1,
-    transform: [{ rotate: '51deg' }],
-  },
-  walls: {
-    position: 'absolute',
-    left: 5.5,
-    top: 12,
-    width: 13,
-    height: 9.2,
-    borderWidth: stroke,
-    borderTopWidth: 0,
-  },
-  screen: {
-    position: 'absolute',
-    left: 2,
-    top: 5,
-    width: 20,
-    height: 14,
-    borderWidth: stroke,
-    borderRadius: 3,
-  },
-  streamRow: {
-    position: 'absolute',
-    left: 2,
-    top: 6,
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 2,
-  },
-  streamTriangle: {
-    width: 0,
-    height: 0,
-    borderTopWidth: 6,
-    borderBottomWidth: 6,
-    borderLeftWidth: 8,
-    borderTopColor: 'transparent',
-    borderBottomColor: 'transparent',
-  },
-  pause: {
-    position: 'relative',
-    width: 13,
-    height: 12,
-    borderWidth: 4,
-    borderTopWidth: 0,
-    borderBottomWidth: 0,
-  },
-  prevRow: {
-    position: 'absolute',
-    left: 2,
-    top: 6,
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 2,
-  },
-  prevTriangle: {
-    width: 0,
-    height: 0,
-    borderTopWidth: 6,
-    borderBottomWidth: 6,
-    borderRightWidth: 8,
-    borderTopColor: 'transparent',
-    borderBottomColor: 'transparent',
-  },
-  playTriangle: {
-    width: 0,
-    height: 0,
-    borderTopWidth: 7,
-    borderBottomWidth: 7,
-    borderLeftWidth: 11,
-    borderTopColor: 'transparent',
-    borderBottomColor: 'transparent',
-  },
-  penthouse: {
-    position: 'absolute',
-    left: 8,
-    top: 3,
-    width: 8,
-    height: 5.5,
-    borderWidth: stroke,
-    borderBottomWidth: 0,
-  },
-  building: {
-    position: 'absolute',
-    left: 3.5,
-    top: 7.5,
-    width: 17,
-    height: 13,
-    borderWidth: stroke,
-    borderRadius: 1,
-  },
-  window: {
-    position: 'absolute',
-    width: 3,
-    height: 2.4,
-  },
-  windowA: { left: 6.5, top: 11 },
-  windowB: { left: 13.5, top: 11 },
-  windowC: { left: 6.5, top: 15.2 },
-  windowD: { left: 13.5, top: 15.2 },
-  toothWrap: {
-    position: 'absolute',
-    width: 24,
-    height: 24,
-    alignItems: 'center',
-  },
-  tooth: {
-    width: 3,
-    height: 7,
-    borderRadius: 0.6,
-  },
-  gearRing: {
-    position: 'absolute',
-    left: 5,
-    top: 5,
-    width: 14,
-    height: 14,
-    borderWidth: 2.2,
-    borderRadius: 7,
-  },
-});
