@@ -1,8 +1,9 @@
-import { Image, StyleSheet, useWindowDimensions, View } from 'react-native';
+import { Image, StyleSheet, View } from 'react-native';
 import { MenuBackground } from '../theme/screenBackground';
+import { useTVCanvasDimensions } from '../theme/tvCanvas';
 
 export function ScreenBackground({ background }: { background: MenuBackground }) {
-  const { width, height } = useWindowDimensions();
+  const { width, height } = useTVCanvasDimensions();
 
   return (
     <View

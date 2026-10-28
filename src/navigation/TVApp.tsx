@@ -3,7 +3,6 @@ import {
   Animated,
   BackHandler,
   StyleSheet,
-  useWindowDimensions,
   View,
 } from 'react-native';
 import { ShellSlideProvider } from './ShellSlide';
@@ -17,6 +16,7 @@ import { menuItems } from '../config/launcherConfig';
 import { useScreenBackground } from '../context/BackgroundContext';
 import { colors } from '../theme/colors';
 import { defaultScreenGradient } from '../theme/screenBackground';
+import { useTVCanvasDimensions } from '../theme/tvCanvas';
 import { NavReturnProvider } from './NavReturn';
 import { useShellSlide } from './ShellSlide';
 import { ScreenId } from '../types';
@@ -32,7 +32,7 @@ export function TVApp() {
   const showChrome = !videoFullscreen;
   const showHeader = showChrome || screen === 'WatchTV';
   const screenBackground = useScreenBackground();
-  const { width: windowWidth } = useWindowDimensions();
+  const { width: windowWidth } = useTVCanvasDimensions();
 
   useEffect(() => {
     const subscription = BackHandler.addEventListener(

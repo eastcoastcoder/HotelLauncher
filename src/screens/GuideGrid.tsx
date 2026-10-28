@@ -40,6 +40,10 @@ const ROW_HEIGHT = 72;
 const NOW_LINE = '#4C8DFF';
 const DAY_MINUTES = 24 * 60;
 
+function percent(value: number): `${number}%` {
+  return `${value}%`;
+}
+
 type Props = {
   onClose?: () => void;
   /** Sidebar copy is visible only. Right from the menu opens the full guide. */
@@ -300,7 +304,7 @@ function GuideStrip({
   const selected = focused ? selectedAiring(airings, nowOffset) : null;
   const windowMinutes = SLOT_COUNT * SLOT_MINUTES;
   const stripStyle = {
-    width: `${(span / windowMinutes) * 100}%`,
+    width: percent((span / windowMinutes) * 100),
     transform: [{ translateX: slide }],
   };
 
@@ -369,8 +373,8 @@ function ProgramBlock({
     return null;
   }
   const place = {
-    left: `${(start / span) * 100}%`,
-    width: `${((end - start) / span) * 100}%`,
+    left: percent((start / span) * 100),
+    width: percent(((end - start) / span) * 100),
   };
   return (
     <View style={[styles.program, place, selected && styles.programSelected]}>

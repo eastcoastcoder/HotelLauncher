@@ -3,16 +3,16 @@ import {
   Image,
   LayoutChangeEvent,
   StyleSheet,
-  useWindowDimensions,
   View,
 } from 'react-native';
 import { launcherConfig } from '../config/launcherConfig';
+import { useTVCanvasDimensions } from '../theme/tvCanvas';
 
 const FALLBACK_ASPECT_RATIO = 2172 / 287;
 const SCREEN_WIDTH_FRACTION = 0.6;
 
 export function PromoBanner() {
-  const { width: screenWidth } = useWindowDimensions();
+  const { width: screenWidth } = useTVCanvasDimensions();
   const [rowWidth, setRowWidth] = useState(0);
   const source = launcherConfig.promoBanner.image;
   const resolved = Image.resolveAssetSource(source);

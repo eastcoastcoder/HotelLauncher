@@ -204,9 +204,9 @@ This is a known platform difference, not a HotelLauncher regression. [react-nati
 
 The A90K check uses a `wm` override of 1920×1080 at density 320, which is that 960×540 dp window. Nav width, `src/theme/typography.ts`, and the other raw `StyleSheet` numbers were written for it. There is no shared scale helper. Apple TV 4K reports `PixelRatio` 2, and so does the A90K, so scaling by pixel ratio would double Android as well.
 
-When this is implemented, one tvOS scale of about `1920 / 960` applies to layout sizes and font sizes. Android scale stays 1. Do not change `wm` density or `PixelRatio` on the A90K. Do not add a scaling dependency.
+`App.tsx` now places the app in a centered 960×540 design canvas and scales that canvas 2× on Apple TV. `useTVCanvasDimensions` keeps window-based sizing and guide transitions in design-canvas units. Android and non-TV iOS remain at scale 1. Do not change `wm` density or `PixelRatio` on the A90K. Do not add a scaling dependency.
 
-This item is done when the Apple TV simulator shows the same relative sizes as the Android TV layout, and the A90K layout is unchanged.
+This item remains open until the Apple TV simulator shows the same relative sizes as the Android TV layout, and the A90K layout is confirmed unchanged.
 
 This is done when the Apple TV simulator launches HotelLauncher and the A90K app still launches.
 

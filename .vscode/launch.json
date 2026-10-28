@@ -22,20 +22,20 @@
       }
     },
     {
-      "name": "Debug iOS Simulator App",
+      "name": "Debug Android App",
       "type": "node-terminal",
       "request": "launch",
-      "command": "open -a 'Xcode' ios/HotelLauncher.xcworkspace",
+      "command": "cd android && ./gradlew assembleDebug",
       "cwd": "${workspaceFolder}",
       "presentation": {
         "hidden": false
       }
     },
     {
-      "name": "Debug Android App",
+      "name": "Debug tvOS Simulator App",
       "type": "node-terminal",
       "request": "launch",
-      "command": "cd android && ./gradlew assembleDebug",
+      "command": "open -a 'Xcode' ios/HotelLauncher.xcworkspace",
       "cwd": "${workspaceFolder}",
       "presentation": {
         "hidden": false

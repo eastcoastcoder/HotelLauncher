@@ -10,12 +10,12 @@
 		0C80B921A6F3F58F76C31292 /* libPods-HotelLauncher.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 5DCACB8F33CDC322A6C60F78 /* libPods-HotelLauncher.a */; };
 		13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB51A68108700A75B9A /* Images.xcassets */; };
 		761780ED2CA45674006654EE /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 761780EC2CA45674006654EE /* AppDelegate.swift */; };
-		F1A0E0112CA4567400665411 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1A0E0102CA4567400665410 /* SceneDelegate.swift */; };
 		81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */; };
 		9047F4EB0EEAA9CD1AB79DD5 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB81A68108700A75B9A /* PrivacyInfo.xcprivacy */; };
 		F1A0E0032CA4567400665403 /* NativeYouTubePlayerManager.m in Sources */ = {isa = PBXBuildFile; fileRef = F1A0E0022CA4567400665402 /* NativeYouTubePlayerManager.m */; };
 		F1A0E0062CA4567400665406 /* TvAsyncStorage.m in Sources */ = {isa = PBXBuildFile; fileRef = F1A0E0052CA4567400665405 /* TvAsyncStorage.m */; };
 		F1A0E0082CA4567400665408 /* AVFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F1A0E0072CA4567400665407 /* AVFoundation.framework */; };
+		F1A0E0112CA4567400665411 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1A0E0102CA4567400665410 /* SceneDelegate.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -27,7 +27,6 @@
 		5709B34CF0A7D63546082F79 /* Pods-HotelLauncher.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-HotelLauncher.release.xcconfig"; path = "Target Support Files/Pods-HotelLauncher/Pods-HotelLauncher.release.xcconfig"; sourceTree = "<group>"; };
 		5DCACB8F33CDC322A6C60F78 /* libPods-HotelLauncher.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-HotelLauncher.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		761780EC2CA45674006654EE /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = AppDelegate.swift; path = HotelLauncher/AppDelegate.swift; sourceTree = "<group>"; };
-		F1A0E0102CA4567400665410 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = SceneDelegate.swift; path = HotelLauncher/SceneDelegate.swift; sourceTree = "<group>"; };
 		81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = LaunchScreen.storyboard; path = HotelLauncher/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
 		F1A0E0012CA4567400665401 /* NativeYouTubePlayerManager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = NativeYouTubePlayerManager.h; path = HotelLauncher/NativeYouTubePlayerManager.h; sourceTree = "<group>"; };
@@ -35,6 +34,7 @@
 		F1A0E0042CA4567400665404 /* TvAsyncStorage.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = TvAsyncStorage.h; path = HotelLauncher/TvAsyncStorage.h; sourceTree = "<group>"; };
 		F1A0E0052CA4567400665405 /* TvAsyncStorage.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = TvAsyncStorage.m; path = HotelLauncher/TvAsyncStorage.m; sourceTree = "<group>"; };
 		F1A0E0072CA4567400665407 /* AVFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AVFoundation.framework; path = System/Library/Frameworks/AVFoundation.framework; sourceTree = SDKROOT; };
+		F1A0E0102CA4567400665410 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = SceneDelegate.swift; path = HotelLauncher/SceneDelegate.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -209,13 +209,9 @@
 			inputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-HotelLauncher/Pods-HotelLauncher-frameworks-${CONFIGURATION}-input-files.xcfilelist",
 			);
-			inputPaths = (
-			);
 			name = "[CP] Embed Pods Frameworks";
 			outputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-HotelLauncher/Pods-HotelLauncher-frameworks-${CONFIGURATION}-output-files.xcfilelist",
-			);
-			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -252,13 +248,9 @@
 			inputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-HotelLauncher/Pods-HotelLauncher-resources-${CONFIGURATION}-input-files.xcfilelist",
 			);
-			inputPaths = (
-			);
 			name = "[CP] Copy Pods Resources";
 			outputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-HotelLauncher/Pods-HotelLauncher-resources-${CONFIGURATION}-output-files.xcfilelist",
-			);
-			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
