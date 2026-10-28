@@ -9,6 +9,7 @@ export function MyMedia({ screen }: { screen: ScreenId }) {
       <Navigation
         active={screen}
         menuItems={mediaMenuItems}
+        width={280}
         onSelect={next => {
           console.log('Selected screen:', next);
         }}

@@ -4,6 +4,7 @@ export type NavIconName =
   | 'stream'
   | 'prev'
   | 'play'
+  | 'next'
   | 'pause'
   | 'hotel'
   | 'settings';

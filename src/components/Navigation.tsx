@@ -20,6 +20,7 @@ type Props = {
   preferredFocusId?: string | null;
   preferredFocusNonce?: number;
   scrollable?: boolean;
+  width?: number;
 };
 
 export function Navigation({
@@ -34,6 +35,7 @@ export function Navigation({
   preferredFocusId = null,
   preferredFocusNonce = 0,
   scrollable = false,
+  width = 200,
 }: Props) {
   const [focusedId, setFocusedId] = useState<string | null>(null);
   const {
@@ -194,11 +196,11 @@ export function Navigation({
   });
 
   if (!scrollable) {
-    return <View style={styles.column}>{rows}</View>;
+    return <View style={[styles.column, { width }]}>{rows}</View>;
   }
   return (
     <ScrollView
-      style={styles.scroll}
+      style={[styles.scroll, { width }]}
       contentContainerStyle={styles.columnScroll}
     >
       {rows}

@@ -3,6 +3,7 @@ import HotelIcon from '../assets/hotel-icon.svg';
 import PauseIcon from '../assets/pause-icon.svg';
 import PlayIcon from '../assets/play-icon.svg';
 import PrevIcon from '../assets/prev-icon.svg';
+import NextIcon from '../assets/next-icon.svg';
 import SettingsIcon from '../assets/settings-icon.svg';
 import StreamIcon from '../assets/stream-icon.svg';
 import TvIcon from '../assets/tv-icon.svg';
@@ -25,6 +26,8 @@ export function NavIcon({ name, color }: Props) {
       return <PrevIcon width={24} height={24} fill={color} />;
     case 'play':
       return <PlayIcon width={24} height={24} fill={color} />;
+    case 'next':
+      return <NextIcon width={24} height={24} fill={color} />;
     case 'pause':
       return <PauseIcon width={24} height={24} fill={color} />;
     case 'hotel':

@@ -287,3 +287,34 @@ test('an explicit preferred row still takes focus', async () => {
     undefined,
   );
 });
+
+test('navigation width is configurable without changing the default', async () => {
+  let renderer: ReactTestRenderer.ReactTestRenderer;
+  await ReactTestRenderer.act(() => {
+    renderer = ReactTestRenderer.create(
+      <BackgroundProvider>
+        <>
+          <Navigation
+            active="MyMedia"
+            menuItems={mediaMenuItems}
+            width={280}
+            onSelect={() => {}}
+          />
+          <Navigation
+            active="Stream"
+            menuItems={streamMenuItems}
+            onSelect={() => {}}
+          />
+        </>
+      </BackgroundProvider>,
+    );
+  });
+
+  expect(
+    pressableFor(renderer!, 'Connect My Headphones').parent?.parent?.props.style,
+  )
+    .toEqual(expect.arrayContaining([expect.objectContaining({ width: 280 })]));
+  expect(pressableFor(renderer!, 'Bonkflix').parent?.parent?.props.style).toEqual(
+    expect.arrayContaining([expect.objectContaining({ width: 200 })]),
+  );
+});

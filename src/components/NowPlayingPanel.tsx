@@ -144,7 +144,7 @@ export function NowPlayingPanel({
           onPress={onNext}
           testID="now-playing-next"
         >
-          <NavIcon name="stream" color={colors.textPrimary} />
+          <NavIcon name="next" color={colors.textPrimary} />
         </Focusable>
       </View>
       <Focusable
