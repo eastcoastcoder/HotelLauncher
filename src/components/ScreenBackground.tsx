@@ -22,7 +22,9 @@ export function ScreenBackground({ background }: { background: MenuBackground })
         focusable={false}
         style={[
           styles.scrim,
-          { experimental_backgroundImage: background.overlay },
+          background.overlay == null
+            ? null
+            : { experimental_backgroundImage: background.overlay },
         ]}
       />
     </View>

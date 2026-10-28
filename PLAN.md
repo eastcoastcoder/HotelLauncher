@@ -3,6 +3,10 @@
 Configurable hotel-TV home screen for **Android TV**, targeted at a **Sony BRAVIA A90K**.
 Built with **React Native TV** (`react-native-tvos`). Branding is data-driven so it is not locked to one hotel.
 
+## Checks
+
+After every code change, run `npm run lint` and `npx tsc --noEmit`. Fix every lint finding and every TypeScript error before the change is finished. That includes the older `ScreenBackground` / `experimental_backgroundImage` nullability errors. Do not leave them, and do not treat them as unrelated.
+
 ## Scope
 
 Android TV on the Sony BRAVIA A90K stays the proven target for Phases 2–5. Do not add phone, tablet, or web targets. The tvOS Xcode project is restored so it can be fixed alongside that work. See Later — tvOS alongside Android TV.
@@ -44,8 +48,11 @@ D-pad only: Up, Down, Left, Right, Select, Back. Focus must be obvious. Back ret
 ### Phase 2 — Clone
 
 - [x] Add ability to make background change image on focus of Navigation, specifically use bonkflixbg when Bonkflix is active, see User Notes section
-- [] Make "Connect my headphones" in My Media open bluetooth settings
-- [] Introduce themes. The current layout stays the same. Switching to the retro theme can change the background, sidebar colors, and related surfaces. More themes can be added later to mirror other hotel brands.
+- [ ] Make "Connect my headphones" in My Media open bluetooth settings
+  - On the A90K, `android.settings.BLUETOOTH_SETTINGS` has no activity, and `com.google.android.tv.btservices` is not installed. `com.sony.dtv.connecteddevicesettings` is the HDMI input setup dialog ("Select the devices you would like to set up"), not Bluetooth.
+  - Select sends `android.settings.SLICE_SETTINGS` with extra `slice_uri` `content://com.android.tv.settings.accessories.sliceprovider/general`. That is the Remotes & Accessories screen: Bluetooth toggle, Pair accessory, and the accessory list. Do not fall back to `Linking.openSettings()`.
+  - The A90K remote pass is still required before this box is checked. The `<queries>` entry for `com.android.tv.settings` needs an install. tvOS has no Bluetooth settings path.
+- [ ] Introduce themes. The current layout stays the same. Switching to the retro theme can change the background, sidebar colors, and related surfaces. More themes can be added later to mirror other hotel brands.
 
 ### Phase 3 — Functional TV
 

@@ -129,11 +129,13 @@ test('loaded channel ids are shuffled unless shuffle is off', async () => {
     {"contentId":"1QeXb2Caf0s"}
     {"contentId":"ADdXw-HMnwc"}
   `;
-  const original = global.fetch;
-  global.fetch = jest.fn(async () => ({
+  const fetchMock = jest.fn(async () => ({
     ok: true,
     text: async () => html,
-  })) as typeof fetch;
+  }));
+  const runtime = globalThis as { fetch: unknown };
+  const original = runtime.fetch;
+  runtime.fetch = fetchMock;
 
   try {
     let n = 0;
@@ -159,8 +161,8 @@ test('loaded channel ids are shuffled unless shuffle is off', async () => {
       '1QeXb2Caf0s',
       'ADdXw-HMnwc',
     ]);
-    expect(global.fetch).toHaveBeenCalledTimes(1);
+    expect(fetchMock).toHaveBeenCalledTimes(1);
   } finally {
-    global.fetch = original;
+    runtime.fetch = original;
   }
 });

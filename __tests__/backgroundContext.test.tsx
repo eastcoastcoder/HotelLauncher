@@ -199,6 +199,9 @@ test('leaving the menu releases a Bonkflix claim', async () => {
 
 test('Bonkflix scrim is the 7deg ramp from the plan', () => {
   const overlay = menuBackgrounds.bonkflix.overlay;
+  if (overlay == null) {
+    throw new Error('Bonkflix scrim is missing');
+  }
   expect(overlay).toHaveLength(1);
   expect(overlay[0]).toMatchObject({
     type: 'linear-gradient',

@@ -19,6 +19,10 @@
         <package android:name="com.disney.disneyplus" />
         <package android:name="com.hulu.livingroomplus" />
         <package android:name="com.wbd.stream" />
+        <package android:name="com.android.tv.settings" />
+        <intent>
+            <action android:name="android.settings.SLICE_SETTINGS" />
+        </intent>
         <intent>
             <action android:name="android.intent.action.GET_CONTENT" />
             <data android:mimeType="image/*" />

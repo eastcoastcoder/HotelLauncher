@@ -64,6 +64,8 @@ Nested menus (Stream, My Media, Hotel Info) stay unselected until the user arrow
 
 Select key-down often never reaches JavaScript. `ReactFeatureFlags.enableKeyDownEvents` defaults to false, so the activity helper emits key-up and `longSelect`, not ACTION_DOWN. `Pressable` fires `onPress` from key-up. A long press cancels `onPress` only on the `Pressable` that received the long press. A view that gains focus mid-hold can still receive the release.
 
+Prefer built-in React Native APIs, such as `Linking.sendIntent`, before adding custom native modules. Add native code only when the built-in APIs cannot provide the required behavior.
+
 ## Discover stage
 
 `src/config/mainStage.local.json` is gitignored. Metro falls back to `src/config/mainStage.example.json` when it is missing. Fields are `channel` (URL, `@handle`, or channel id) and `exclude` (bare video ids). A missing file, a blank channel, or no videos left after exclusions keeps the static stage.
@@ -106,7 +108,7 @@ Settings rows sit in a `TVFocusGuideView` with `trapFocusUp` and `trapFocusDown`
 
 JSX runtime is `react-native`. Do not `import React from 'react'`. Import `useEffect`, `forwardRef`, `Component`, and types by name.
 
-`npx tsc --noEmit` still fails on older `ScreenBackground` / `experimental_backgroundImage` nullability. Do not treat that as a failure of unrelated work. Say so when you report typecheck.
+After every code change, run `npm run lint` and `npx tsc --noEmit`. Fix every lint finding and every TypeScript error before the change is finished, including `ScreenBackground` / `experimental_backgroundImage` nullability. See `PLAN.md` Checks.
 
 ## Tests
 
