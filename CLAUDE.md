@@ -132,6 +132,8 @@ Remote: `https://github.com/eastcoastcoder/HotelLauncher.git`.
 
 Commit subjects: `type(Scope): sentence`, for example `feat(Stream): launch rows by Android package id`.
 
+Never auto-commit or push changes. All commits and pushes must be explicit, user-approved actions.
+
 `/reference` is gitignored. It holds layout photos. Do not commit it.
 
 When a task is unfinished because the session is out of room, write the remaining work into `PLAN.md` instead of leaving it only in the chat.
