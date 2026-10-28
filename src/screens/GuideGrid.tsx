@@ -1,4 +1,10 @@
-import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
+import {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from 'react';
 import {
   Animated,
   Easing,
@@ -52,7 +58,7 @@ export function GuideGrid({
   );
   const [gridWidth, setGridWidth] = useState(0);
   const [pending, setPending] = useState<1 | -1 | 0>(0);
-  const [focusedId, setFocusedId] = useState(guideChannels[0]?.id ?? '');
+  const [focusedId, setFocusedId] = useState<string | null>(null);
   const nav = useNavReturn();
   const watchTVMain = nav?.mains.WatchTV;
   const slide = useRef(new Animated.Value(0)).current;
@@ -132,7 +138,8 @@ export function GuideGrid({
         return;
       }
       setWindowStart(
-        current => (current + direction * SLOT_MINUTES + DAY_MINUTES) % DAY_MINUTES,
+        current =>
+          (current + direction * SLOT_MINUTES + DAY_MINUTES) % DAY_MINUTES,
       );
       slide.setValue(0);
       setPending(0);
@@ -158,7 +165,9 @@ export function GuideGrid({
   }
   const nowOffset = nowDelta < span ? nowDelta : null;
   const nowLabelOffset =
-    gridWidth > 0 ? Math.max(0, fraction == null ? 0 : fraction * gridWidth - 34) : 0;
+    gridWidth > 0
+      ? Math.max(0, fraction == null ? 0 : fraction * gridWidth - 34)
+      : 0;
   const nowLabelPosition = { left: nowLabelOffset };
   const nowLineStyle = {
     left: CHANNEL_COLUMN + (fraction ?? 0) * gridWidth,
@@ -166,7 +175,7 @@ export function GuideGrid({
   };
 
   const frame = (
-    <View style={styles.fill} testID={testID}>
+    <View testID={testID}>
       <View style={styles.ruler}>
         <View style={styles.channelSpacer} />
         <View
@@ -180,7 +189,9 @@ export function GuideGrid({
             const current = slotContains(slot, minute);
             return (
               <View key={slot} style={styles.slotHead}>
-                <Text style={[styles.slotLabel, current && styles.slotLabelNow]}>
+                <Text
+                  style={[styles.slotLabel, current && styles.slotLabelNow]}
+                >
                   {formatSlotLabel(slot)}
                 </Text>
               </View>
@@ -199,6 +210,7 @@ export function GuideGrid({
       <View style={styles.rows}>
         {guideChannels.map((channel, index) => {
           const focused = interactive && channel.id === focusedId;
+          const textColor = focused ? colors.navActive : colors.navIdle;
           const strip = (
             <GuideStrip
               channel={channel}
@@ -208,6 +220,7 @@ export function GuideGrid({
               nowOffset={nowOffset}
               slide={slide}
               focused={focused}
+              textColor={textColor}
               open={interactive}
             />
           );
@@ -233,6 +246,10 @@ export function GuideGrid({
               onFocusChange={next => {
                 if (next) {
                   setFocusedId(channel.id);
+                } else {
+                  setFocusedId(current =>
+                    current === channel.id ? null : current,
+                  );
                 }
               }}
             >
@@ -252,12 +269,7 @@ export function GuideGrid({
   }
 
   return (
-    <TVFocusGuideView
-      style={styles.fill}
-      trapFocusUp
-      trapFocusDown
-      trapFocusRight
-    >
+    <TVFocusGuideView trapFocusUp trapFocusDown trapFocusRight>
       {frame}
     </TVFocusGuideView>
   );
@@ -271,6 +283,7 @@ function GuideStrip({
   nowOffset,
   slide,
   focused,
+  textColor,
   open,
 }: {
   channel: GuideChannel;
@@ -280,6 +293,7 @@ function GuideStrip({
   nowOffset: number | null;
   slide: Animated.Value;
   focused: boolean;
+  textColor: string;
   open: boolean;
 }) {
   const airings = airingsFor(channel, origin, span, minute);
@@ -294,21 +308,25 @@ function GuideStrip({
     <>
       <View style={[styles.channelCol, open && styles.channelColOpen]}>
         <ChannelMark mark={channel.mark} size={28} />
-        <Text style={styles.channelNumber}>{channel.number}</Text>
-        <Text style={styles.channelName} numberOfLines={1}>
+        <Text style={[styles.channelNumber, { color: textColor }]}>
+          {channel.number}
+        </Text>
+        <Text
+          style={[styles.channelName, { color: textColor }]}
+          numberOfLines={1}
+        >
           {channel.name}
         </Text>
       </View>
       <View style={styles.clip}>
-        <Animated.View
-          style={[styles.strip, stripStyle]}
-        >
+        <Animated.View style={[styles.strip, stripStyle]}>
           {airings.map(airing => (
             <ProgramBlock
               key={`${channel.id}-${airing.offset}-${airing.title}`}
               airing={airing}
               span={span}
               selected={selected === airing}
+              textColor={textColor}
             />
           ))}
         </Animated.View>
@@ -323,7 +341,9 @@ function selectedAiring(
 ): GuideAiring | null {
   if (nowOffset != null) {
     const hit = airings.find(
-      airing => nowOffset >= airing.offset && nowOffset < airing.offset + airing.minutes,
+      airing =>
+        nowOffset >= airing.offset &&
+        nowOffset < airing.offset + airing.minutes,
     );
     if (hit != null) {
       return hit;
@@ -336,10 +356,12 @@ function ProgramBlock({
   airing,
   span,
   selected,
+  textColor,
 }: {
   airing: GuideAiring;
   span: number;
   selected: boolean;
+  textColor: string;
 }) {
   const start = Math.max(0, airing.offset);
   const end = Math.min(span, airing.offset + airing.minutes);
@@ -351,26 +373,25 @@ function ProgramBlock({
     width: `${((end - start) / span) * 100}%`,
   };
   return (
-    <View
-      style={[styles.program, place, selected && styles.programSelected]}
-    >
+    <View style={[styles.program, place, selected && styles.programSelected]}>
       <Text
-        style={[styles.programTitle, selected && styles.programTitleSelected]}
+        style={[
+          styles.programTitle,
+          { color: textColor },
+          selected && styles.programTitleSelected,
+        ]}
         numberOfLines={1}
       >
         {airing.title}
       </Text>
-      {selected ? null : <View style={styles.programRule} />}
+      {selected ? null : (
+        <View style={[styles.programRule, { backgroundColor: textColor }]} />
+      )}
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  fill: {
-    flex: 1,
-    backgroundColor: colors.background,
-    paddingTop: 16,
-  },
   ruler: {
     height: RULER_HEIGHT,
     flexDirection: 'row',
@@ -392,7 +413,7 @@ const styles = StyleSheet.create({
     paddingTop: 2,
   },
   slotLabel: {
-    color: colors.textPrimary,
+    color: colors.navIdle,
     fontSize: 16,
     fontWeight: '500',
   },
@@ -435,13 +456,11 @@ const styles = StyleSheet.create({
     paddingLeft: 32,
   },
   channelNumber: {
-    color: colors.textPrimary,
     fontSize: 16,
     fontWeight: '500',
   },
   channelName: {
     flex: 1,
-    color: colors.textPrimary,
     fontSize: 16,
     fontWeight: '500',
   },
@@ -463,12 +482,11 @@ const styles = StyleSheet.create({
     top: 8,
     bottom: 8,
     borderWidth: 2,
-    borderColor: '#FFFFFF',
+    borderColor: colors.navActive,
     paddingRight: 16,
     paddingLeft: 16,
   },
   programTitle: {
-    color: colors.textPrimary,
     fontSize: 16,
     fontWeight: '500',
   },

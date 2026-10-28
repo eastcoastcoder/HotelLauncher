@@ -380,7 +380,11 @@ export function Stream({ screen }: { screen: ScreenId }) {
   );
 
   const dialogMode =
-    pickerKind === 'add' ? 'add' : pickerKind === 'added' ? 'added' : 'override';
+    pickerKind === 'add'
+      ? 'add'
+      : pickerKind === 'added'
+      ? 'added'
+      : 'override';
 
   const dialog =
     pickerKind === 'hidden' ? (
@@ -431,5 +435,6 @@ const styles = StyleSheet.create({
     flex: 1,
     flexDirection: 'row',
     alignItems: 'stretch',
+    paddingTop: 50,
   },
 });

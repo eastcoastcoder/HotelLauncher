@@ -136,10 +136,7 @@ export function initialWindowStart(date: Date): number {
   return floorToSlot(minuteOfDay(date));
 }
 
-export function slotStarts(
-  windowStart: number,
-  count = SLOT_COUNT,
-): number[] {
+export function slotStarts(windowStart: number, count = SLOT_COUNT): number[] {
   const origin = (windowStart + DAY_MINUTES) % DAY_MINUTES;
   return Array.from(
     { length: count },
@@ -189,7 +186,7 @@ export function nowFraction(
 }
 
 function signedMinutes(from: number, to: number): number {
-  let delta = ((to - from) % DAY_MINUTES + DAY_MINUTES) % DAY_MINUTES;
+  let delta = (((to - from) % DAY_MINUTES) + DAY_MINUTES) % DAY_MINUTES;
   if (delta > DAY_MINUTES / 2) {
     delta -= DAY_MINUTES;
   }
@@ -208,8 +205,7 @@ export function airingsFor(
     return [];
   }
   const anchor = floorToSlot(now);
-  const fromAnchor =
-    ((signedMinutes(anchor, origin) % cycle) + cycle) % cycle;
+  const fromAnchor = ((signedMinutes(anchor, origin) % cycle) + cycle) % cycle;
 
   let index = 0;
   let consumed = 0;
